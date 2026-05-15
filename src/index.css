@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+/* ============================================
+   STUDYFORGE — Sistema de Diseño Completo
+   ============================================ */
+
+@theme {
+  /* --- Paleta principal --- */
+  --color-teal: #1B3A35;
+  --color-teal-light: #2E6B5E;
+  --color-teal-darker: #122824;
+  --color-teal-darkest: #0D1E1B;
+  --color-terracotta: #C27A55;
+  --color-terracotta-light: #D4956F;
+  --color-terracotta-dark: #A5633F;
+  --color-beige: #C8C5B8;
+  --color-beige-dark: #A8A598;
+  --color-black: #0A0A0A;
+
+  /* --- Colores de carga del calendario --- */
+  --color-load-0: #2E6B5E;
+  --color-load-1: #1B3A35;
+  --color-load-2: #C9A96E;
+  --color-load-4: #C27A55;
+  --color-load-6: #8B2E2E;
+
+  /* --- Colores semánticos de prioridad --- */
+  --color-priority-critica: #8B2E2E;
+  --color-priority-alta: #C27A55;
+  --color-priority-media: #C9A96E;
+  --color-priority-baja: #2E6B5E;
+
+  /* --- Tipografía --- */
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "DM Sans", sans-serif;
+
+  /* --- Sombras dramáticas multicapa --- */
+  --shadow-card: 0 4px 6px rgba(10,10,10,0.15), 0 10px 30px rgba(10,10,10,0.25);
+  --shadow-elevated: 0 8px 16px rgba(10,10,10,0.2), 0 20px 60px rgba(10,10,10,0.35);
+  --shadow-glow-terracotta: 0 0 0 1px rgba(194,122,85,0.6);
+
+  /* --- Animaciones --- */
+  --animate-pulse-terracotta: pulse-terracotta 3s ease-in-out infinite;
+  --animate-scan: scan-line 2s linear infinite;
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+}
+
+/* ============================================
+   RESET Y BASE GLOBAL
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-body);
+  background-color: var(--color-teal);
+  color: var(--color-beige);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* --- Grain Texture Overlay --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ============================================
+   CURSOR PERSONALIZADO
+   ============================================ */
+
+* {
+  cursor: none !important;
+}
+
+#cursor-dot,
+#cursor-ring {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transition: transform 0.15s ease-out;
+}
+
+#cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-terracotta);
+  transform: translate(-50%, -50%);
+}
+
+#cursor-ring {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--color-teal-light);
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease;
+}
+
+#cursor-ring.hover {
+  width: 48px;
+  height: 48px;
+  border-color: var(--color-terracotta);
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADA
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-teal-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-terracotta);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-terracotta-light);
+}
+
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================ */
+
+.glass {
+  background: rgba(27, 58, 53, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 197, 184, 0.12);
+  box-shadow: var(--shadow-card);
+}
+
+.glass-dark {
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(200, 197, 184, 0.08);
+}
+
+/* ============================================
+   KEYFRAMES
+   ============================================ */
+
+@keyframes pulse-terracotta {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194,122,85,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(194,122,85,0); }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes strikethrough {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes fill-progress {
+  from { stroke-dashoffset: 283; }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, var(--color-teal-darker) 25%, var(--color-teal) 50%, var(--color-teal-darker) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.hover-glow {
+  transition: all 0.25s ease-in-out;
+}
+
+.hover-glow:hover {
+  box-shadow: var(--shadow-glow-terracotta);
+  transform: translateY(-4px);
+}
