@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 import { useUIStore } from '../../store/uiStore'
@@ -26,8 +27,32 @@ export default function TaskCard({ task, index = 0 }) {
   const subject = getSubjectById(task.subject_id)
   const isCompleted = task.status === 'completed'
   const isCritical = task.ai_priority === 'Crítica' && !isCompleted
-  const progress = task.progress || 0
-  const isInProgress = !isCompleted && progress > 0 && progress < 100
+  
+  // Local state for the slider to avoid rapid DB calls
+  const [localProgress, setLocalProgress] = useState(task.progress || 0)
+  const lastSyncedProgress = useRef(task.progress || 0)
+
+  // Sync local state when task prop changes (from external updates)
+  useEffect(() => {
+    if (task.progress !== lastSyncedProgress.current) {
+      setLocalProgress(task.progress || 0)
+      lastSyncedProgress.current = task.progress || 0
+    }
+  }, [task.progress])
+
+  // Debounced effect to update the store
+  useEffect(() => {
+    if (localProgress === lastSyncedProgress.current) return
+
+    const timer = setTimeout(() => {
+      updateTask(task.id, { progress: localProgress })
+      lastSyncedProgress.current = localProgress
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [localProgress, task.id, updateTask])
+
+  const isInProgress = !isCompleted && localProgress > 0 && localProgress < 100
 
   // Countdown
   const today = new Date()
@@ -44,8 +69,7 @@ export default function TaskCard({ task, index = 0 }) {
   else { countdownText = `Vencida hace ${Math.abs(diffDays)} día${Math.abs(diffDays) > 1 ? 's' : ''}`; countdownColor = '#8B2E2E' }
 
   const handleProgressChange = (e) => {
-    const newProgress = parseInt(e.target.value)
-    updateTask(task.id, { progress: newProgress })
+    setLocalProgress(parseInt(e.target.value))
   }
 
   return (
@@ -138,14 +162,14 @@ export default function TaskCard({ task, index = 0 }) {
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] text-beige-dark uppercase tracking-widest font-medium">Progreso</span>
-          <span className="text-[10px] font-bold text-beige">{progress}%</span>
+          <span className="text-[10px] font-bold text-beige">{localProgress}%</span>
         </div>
         <div className="relative h-1.5 w-full bg-black/20 rounded-full overflow-hidden group/slider">
           <div 
             className="absolute top-0 left-0 h-full transition-all duration-500 rounded-full"
             style={{ 
-              width: `${progress}%`,
-              backgroundColor: isCompleted ? '#2E6B5E' : (progress > 80 ? '#2E6B5E' : (progress > 40 ? '#C9A96E' : '#C27A55'))
+              width: `${localProgress}%`,
+              backgroundColor: isCompleted ? '#2E6B5E' : (localProgress > 80 ? '#2E6B5E' : (localProgress > 40 ? '#C9A96E' : '#C27A55'))
             }}
           />
           <input
@@ -153,7 +177,7 @@ export default function TaskCard({ task, index = 0 }) {
             min="0"
             max="100"
             step="5"
-            value={progress}
+            value={localProgress}
             disabled={isCompleted}
             onChange={handleProgressChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-default"

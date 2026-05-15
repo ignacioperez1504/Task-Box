@@ -9,6 +9,7 @@ export const useTaskStore = create((set, get) => ({
   loading: false,
 
   fetchTasks: async () => {
+    if (get().loading) return
     set({ loading: true })
     const { data, error } = await supabase
       .from('tasks')
@@ -32,17 +33,28 @@ export const useTaskStore = create((set, get) => ({
   },
 
   updateTask: async (id, updates) => {
+    // Optimistic update
+    const previousTasks = get().tasks
+    set({
+      tasks: previousTasks.map((t) => (t.id === id ? { ...t, ...updates } : t))
+    })
+
     const { data, error } = await supabase
       .from('tasks')
       .update(updates)
       .eq('id', id)
       .select()
       .single()
-    if (!error && data) {
-      set({ tasks: get().tasks.map((t) => (t.id === id ? data : t)) })
-      return data
+
+    if (error) {
+      set({ tasks: previousTasks })
+      return null
     }
-    return null
+
+    if (data) {
+      set({ tasks: get().tasks.map((t) => (t.id === id ? data : t)) })
+    }
+    return data
   },
 
   deleteTask: async (id) => {
@@ -167,15 +179,34 @@ export const useTaskStore = create((set, get) => ({
     return streak
   },
 
-  // Suscripción Realtime
+  // Suscripción Realtime optimizada
   subscribeToChanges: () => {
     const channel = supabase
       .channel('tasks-changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'tasks' },
-        () => {
-          get().fetchTasks()
+        (payload) => {
+          const { eventType, new: newRecord, old: oldRecord } = payload
+
+          set((state) => {
+            if (eventType === 'INSERT') {
+              if (state.tasks.some(t => t.id === newRecord.id)) return state
+              return { tasks: [newRecord, ...state.tasks] }
+            }
+            if (eventType === 'UPDATE') {
+              // Solo actualizar si es diferente para evitar ciclos
+              return {
+                tasks: state.tasks.map(t => t.id === newRecord.id ? newRecord : t)
+              }
+            }
+            if (eventType === 'DELETE') {
+              return {
+                tasks: state.tasks.filter(t => t.id !== oldRecord.id)
+              }
+            }
+            return state
+          })
         }
       )
       .subscribe()
