@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useTaskStore } from '../../store/taskStore'
+import { useReminderStore } from '../../store/reminderStore'
 import CalendarDay from './CalendarDay'
 import CalendarTask from './CalendarTask'
 import { CardSkeleton } from '../ui/LoadingSkeleton'
@@ -11,6 +12,7 @@ const DAYS_ES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Dom
 
 export default function Calendar() {
   const { tasks, loading, moveTaskToDate } = useTaskStore()
+  const { reminders } = useReminderStore()
   
   const today = new Date()
   const [viewMonth, setViewMonth] = useState(today.getMonth())
@@ -170,6 +172,7 @@ export default function Calendar() {
             {calendarDays.map(({ date, isCurrentMonth }, i) => {
               const dateStr = date.toISOString().split('T')[0]
               const dayTasks = tasks.filter(t => t.due_date === dateStr)
+              const dayReminders = reminders.filter(r => r.date === dateStr)
               
               return (
                 <motion.div
@@ -182,6 +185,7 @@ export default function Calendar() {
                     date={date} 
                     isCurrentMonth={isCurrentMonth} 
                     tasks={dayTasks}
+                    reminders={dayReminders}
                   />
                 </motion.div>
               )

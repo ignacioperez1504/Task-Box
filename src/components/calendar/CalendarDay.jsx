@@ -2,6 +2,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { motion } from 'framer-motion'
 import { useUIStore } from '../../store/uiStore'
 import CalendarTask from './CalendarTask'
+import CalendarReminder from './CalendarReminder'
 
 const LOAD_COLORS = {
   0: '#2E6B5E', // Low
@@ -19,7 +20,7 @@ function getLoadColor(count) {
   return LOAD_COLORS[6]
 }
 
-export default function CalendarDay({ date, isCurrentMonth, tasks }) {
+export default function CalendarDay({ date, isCurrentMonth, tasks, reminders = [] }) {
   const { setSelectedDate, setActiveSection } = useUIStore()
   
   const dateStr = date.toISOString().split('T')[0]
@@ -32,15 +33,22 @@ export default function CalendarDay({ date, isCurrentMonth, tasks }) {
     data: { dateStr },
   })
 
-  // Color load indicator line
+  // Color load indicator line (still based on tasks as they represent academic load)
   const loadColor = getLoadColor(tasks.length)
 
   const handleDayClick = (e) => {
-    // Si se hizo click en un task, no abrir la vista de día
+    // Si se hizo click en un task o reminder, no abrir la vista de día
     if (e.target.closest('[role="button"]') || e.target.closest('.cursor-grab')) return
     setSelectedDate(dateStr)
     setActiveSection('dayTasks')
   }
+
+  const allItems = [
+    ...tasks.map(t => ({ type: 'task', data: t })),
+    ...reminders.map(r => ({ type: 'reminder', data: r }))
+  ]
+
+  const totalCount = allItems.length
 
   return (
     <div
@@ -72,29 +80,30 @@ export default function CalendarDay({ date, isCurrentMonth, tasks }) {
           {date.getDate()}
         </span>
         
-        {tasks.length > 0 && (
+        {totalCount > 0 && (
           <span 
             className="text-[10px] px-1.5 py-0.5 rounded font-medium"
             style={{ 
               backgroundColor: loadColor + '30', 
-              color: loadColor === '#1B3A35' ? '#C8C5B8' : loadColor 
+              color: loadColor === '#1B3A35' ? '#C8C5B8' : (tasks.length > 0 ? loadColor : '#C27A55')
             }}
           >
-            {tasks.length}
+            {totalCount}
           </span>
         )}
       </div>
 
-      {/* Tasks list */}
+      {/* Items list (Tasks + Reminders) */}
       <div className="space-y-1">
-        {/* Mostramos solo las primeras 3 tareas para no desbordar el grid */}
-        {tasks.slice(0, 3).map((task) => (
-          <CalendarTask key={task.id} task={task} />
+        {allItems.slice(0, 3).map((item) => (
+          item.type === 'task' 
+            ? <CalendarTask key={item.data.id} task={item.data} />
+            : <CalendarReminder key={item.data.id} reminder={item.data} />
         ))}
         
-        {tasks.length > 3 && (
+        {totalCount > 3 && (
           <div className="text-[10px] text-beige-dark text-center mt-1 py-1 bg-black/20 rounded">
-            + {tasks.length - 3} más
+            + {totalCount - 3} más
           </div>
         )}
       </div>
