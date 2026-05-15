@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useTaskStore } from '../../store/taskStore'
 import { useReminderStore } from '../../store/reminderStore'
+import { getDailyRecommendation, hasApiKey } from '../../lib/aiService'
 import CalendarDay from './CalendarDay'
 import CalendarTask from './CalendarTask'
 import { CardSkeleton } from '../ui/LoadingSkeleton'
@@ -10,15 +11,81 @@ import { CardSkeleton } from '../ui/LoadingSkeleton'
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 const DAYS_ES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
 
+function AIRecommendationPanel({ tasks, reminders }) {
+  const [recommendation, setRecommendation] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const apiConfigured = hasApiKey()
+
+  useEffect(() => {
+    async function fetchRecommendation() {
+      if (!apiConfigured || tasks.length === 0) return
+      setLoading(true)
+      try {
+        const rec = await getDailyRecommendation(tasks.slice(0, 3), reminders)
+        setRecommendation(rec)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchRecommendation()
+  }, [apiConfigured, tasks.length])
+
+  if (!apiConfigured || (tasks.length === 0 && !loading)) return null
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-6 p-5 glass-dark border border-terracotta/20 rounded-2xl relative overflow-hidden group"
+    >
+      <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C27A55" strokeWidth="1.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      </div>
+
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-terracotta/20 flex items-center justify-center shrink-0 border border-terracotta/30">
+          <span className="text-xl">✨</span>
+        </div>
+        <div className="flex-1">
+          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta mb-1">Recomendación de hoy</h4>
+          {loading ? (
+            <div className="space-y-2 mt-2">
+              <div className="h-3 bg-beige/10 rounded w-3/4 animate-pulse" />
+              <div className="h-3 bg-beige/10 rounded w-1/2 animate-pulse" />
+            </div>
+          ) : (
+            <p className="text-sm text-beige leading-relaxed italic">
+              {recommendation || "Analizando tus tareas para darte el mejor consejo..."}
+            </p>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function Calendar() {
-  const { tasks, loading, moveTaskToDate } = useTaskStore()
+  const { tasks, loading, moveTaskToDate, getSortedTasks } = useTaskStore()
   const { reminders } = useReminderStore()
   
   const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
   const [viewMonth, setViewMonth] = useState(today.getMonth())
   const [viewYear, setViewYear] = useState(today.getFullYear())
   const [activeDragTask, setActiveDragTask] = useState(null)
   const [shakeDay, setShakeDay] = useState(null)
+
+  const sortedPendingTasks = useMemo(() => {
+    return getSortedTasks().filter(t => t.status !== 'completed')
+  }, [tasks, getSortedTasks])
+
+  const todayReminders = useMemo(() => {
+    return reminders.filter(r => r.date === todayStr)
+  }, [reminders, todayStr])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -127,9 +194,9 @@ export default function Calendar() {
   }
 
   return (
-    <div className="h-full flex flex-col pt-10 px-6 pb-6">
+    <div className="h-full flex flex-col pt-10 px-6 pb-6 overflow-y-auto custom-scrollbar">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 shrink-0">
         <div className="flex items-center gap-4">
           <h2 className="font-display text-4xl text-beige min-w-[200px]">
             {MONTHS_ES[viewMonth]} <span className="text-terracotta">{viewYear}</span>
@@ -149,6 +216,9 @@ export default function Calendar() {
         </div>
       </div>
 
+      {/* AI Recommendation Panel */}
+      <AIRecommendationPanel tasks={sortedPendingTasks} reminders={todayReminders} />
+
       {/* Calendar Grid */}
       <DndContext 
         sensors={sensors}
@@ -156,10 +226,10 @@ export default function Calendar() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-beige/10 shadow-lg relative bg-teal-darker/30 mt-4">
+        <div className="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-beige/10 shadow-lg relative bg-teal-darker/30 mt-4 min-h-[600px]">
           
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-beige/10 bg-black/20">
+          <div className="grid grid-cols-7 border-b border-beige/10 bg-black/20 shrink-0">
             {DAYS_ES.map(day => (
               <div key={day} className="py-3 text-center text-xs text-beige-dark font-medium uppercase tracking-widest border-r border-beige/10">
                 {day.substring(0, 3)}

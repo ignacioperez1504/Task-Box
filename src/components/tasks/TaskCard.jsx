@@ -19,13 +19,15 @@ const CATEGORY_ICONS = {
 export default function TaskCard({ task, index = 0 }) {
   const { getSubjectById } = useSubjectStore()
   const { openEditPanel, openDeleteModal } = useUIStore()
-  const { completeTask } = useTaskStore()
+  const { completeTask, updateTask } = useTaskStore()
   const { getTaskScore, getStudyPlan } = useAcademicStore()
   const score = getTaskScore(task.id)
 
   const subject = getSubjectById(task.subject_id)
   const isCompleted = task.status === 'completed'
   const isCritical = task.ai_priority === 'Crítica' && !isCompleted
+  const progress = task.progress || 0
+  const isInProgress = !isCompleted && progress > 0 && progress < 100
 
   // Countdown
   const today = new Date()
@@ -41,6 +43,11 @@ export default function TaskCard({ task, index = 0 }) {
   else if (diffDays > 1) { countdownText = `Faltan ${diffDays} días` }
   else { countdownText = `Vencida hace ${Math.abs(diffDays)} día${Math.abs(diffDays) > 1 ? 's' : ''}`; countdownColor = '#8B2E2E' }
 
+  const handleProgressChange = (e) => {
+    const newProgress = parseInt(e.target.value)
+    updateTask(task.id, { progress: newProgress })
+  }
+
   return (
     <motion.div
       layout
@@ -49,9 +56,11 @@ export default function TaskCard({ task, index = 0 }) {
       exit={{ opacity: 0, scale: 0.85 }}
       transition={{ duration: 0.3, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className="group glass rounded-xl p-5 relative transition-shadow duration-250"
+      className={`group glass rounded-xl p-5 relative transition-all duration-300
+        ${isInProgress ? 'border-r-2 border-beige/20 shadow-[0_0_15px_rgba(201,169,110,0.1)]' : ''}
+      `}
       style={{
-        borderLeft: isCritical ? '4px solid #8B2E2E' : '4px solid transparent',
+        borderLeft: isCritical ? '4px solid #8B2E2E' : (isInProgress ? '4px solid #C9A96E' : '4px solid transparent'),
         filter: isCompleted ? 'saturate(0.3) brightness(0.85)' : 'none',
         animation: isCritical ? 'pulse-terracotta 4s ease-in-out infinite' : 'none',
       }}
@@ -59,6 +68,18 @@ export default function TaskCard({ task, index = 0 }) {
       {/* Top row: title + actions */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {isInProgress && (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta px-1.5 py-0.5 bg-terracotta/10 rounded border border-terracotta/20 animate-pulse">
+                En curso
+              </span>
+            )}
+            {isCompleted && (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-teal px-1.5 py-0.5 bg-teal/10 rounded border border-teal/20">
+                Finalizada
+              </span>
+            )}
+          </div>
           <h3
             className="font-display text-xl text-beige leading-tight relative inline-block"
             style={{ textDecoration: isCompleted ? 'none' : 'none' }}
@@ -110,6 +131,33 @@ export default function TaskCard({ task, index = 0 }) {
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>
           </button>
+        </div>
+      </div>
+
+      {/* Progress Slider */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] text-beige-dark uppercase tracking-widest font-medium">Progreso</span>
+          <span className="text-[10px] font-bold text-beige">{progress}%</span>
+        </div>
+        <div className="relative h-1.5 w-full bg-black/20 rounded-full overflow-hidden group/slider">
+          <div 
+            className="absolute top-0 left-0 h-full transition-all duration-500 rounded-full"
+            style={{ 
+              width: `${progress}%`,
+              backgroundColor: isCompleted ? '#2E6B5E' : (progress > 80 ? '#2E6B5E' : (progress > 40 ? '#C9A96E' : '#C27A55'))
+            }}
+          />
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="5"
+            value={progress}
+            disabled={isCompleted}
+            onChange={handleProgressChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-default"
+          />
         </div>
       </div>
 

@@ -234,3 +234,47 @@ export async function classifyTask(task) {
     throw error
   }
 }
+
+export async function getDailyRecommendation(tasks, reminders) {
+  const { apiKey, endpoint, model } = getConfig()
+  if (!apiKey) return null
+
+  const prompt = `Eres un asistente académico experto. Basado en las siguientes tareas y recordatorios de HOY, da una recomendación corta (máx 3 frases) sobre qué priorizar y cómo empezar.
+  
+  TAREAS TOP (prioridad + score):
+  ${tasks.map(t => `- ${t.title} (${t.ai_priority}, ${t.progress || 0}% progreso, vence: ${t.due_date})`).join('\n')}
+  
+  RECORDATORIOS DE HOY:
+  ${reminders.length > 0 ? reminders.map(r => `- ${r.title}`).join('\n') : 'Ninguno'}
+  
+  REGLAS:
+  1. Sé directo y motivador.
+  2. Si una tarea tiene progreso alto (>70%), sugiere terminarla.
+  3. Si hay muchos recordatorios, sugiere enfocarse solo en lo más crítico.
+  4. Responde con texto plano, sin JSON.`
+
+  const url = `${endpoint}/chat/completions`
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.5,
+        max_tokens: 150,
+      }),
+    })
+
+    if (!response.ok) return null
+    const data = await response.json()
+    return data?.choices?.[0]?.message?.content?.trim() || null
+  } catch (error) {
+    console.error('Error en getDailyRecommendation:', error)
+    return null
+  }
+}
