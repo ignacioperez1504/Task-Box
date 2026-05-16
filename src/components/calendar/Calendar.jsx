@@ -18,27 +18,37 @@ function AIRecommendationPanel({ tasks, reminders }) {
 
   useEffect(() => {
     async function fetchRecommendation() {
-      if (!apiConfigured || tasks.length === 0) return
+      // Only fetch if we have an API key and at least one task
+      if (!apiConfigured || tasks.length === 0) {
+        if (tasks.length === 0) setRecommendation(null)
+        return
+      }
+      
       setLoading(true)
       try {
         const rec = await getDailyRecommendation(tasks.slice(0, 3), reminders)
         setRecommendation(rec)
       } catch (err) {
-        console.error(err)
+        console.error('AI Panel Error:', err)
       } finally {
         setLoading(false)
       }
     }
     fetchRecommendation()
-  }, [apiConfigured, tasks.length])
+  }, [apiConfigured, tasks, reminders.length]) // Added tasks and reminders.length as dependencies
 
-  if (!apiConfigured || (tasks.length === 0 && !loading)) return null
+  // If no API key, don't show anything
+  if (!apiConfigured) return null
+  
+  // If no tasks and not loading, we can show a placeholder or nothing
+  // But let's show it if we are loading or if we have a recommendation
+  if (tasks.length === 0 && !loading && !recommendation) return null
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-6 p-5 glass-dark border border-terracotta/20 rounded-2xl relative overflow-hidden group"
+      className="mb-6 p-5 glass-dark border border-terracotta/20 rounded-2xl relative overflow-hidden group min-h-[100px]"
     >
       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C27A55" strokeWidth="1.5">
@@ -59,7 +69,7 @@ function AIRecommendationPanel({ tasks, reminders }) {
             </div>
           ) : (
             <p className="text-sm text-beige leading-relaxed italic">
-              {recommendation || "Analizando tus tareas para darte el mejor consejo..."}
+              {recommendation || (tasks.length > 0 ? "Analizando tus tareas para darte el mejor consejo..." : "No hay tareas pendientes para analizar.")}
             </p>
           )}
         </div>

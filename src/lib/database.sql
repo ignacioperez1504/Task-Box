@@ -25,6 +25,7 @@ CREATE TABLE tasks (
   ai_recommendation TEXT,
   ai_suggested_hours DECIMAL(4,1),
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+  progress INTEGER DEFAULT 0,
   tags TEXT[],
   created_at TIMESTAMPTZ DEFAULT NOW(),
   completed_at TIMESTAMPTZ

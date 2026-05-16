@@ -9,14 +9,23 @@ export const useTaskStore = create((set, get) => ({
   loading: false,
 
   fetchTasks: async () => {
-    if (get().loading) return
     set({ loading: true })
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .order('created_at', { ascending: false })
-    if (!error) set({ tasks: data || [] })
-    set({ loading: false })
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Error fetching tasks:', error)
+      } else {
+        set({ tasks: data || [] })
+      }
+    } catch (err) {
+      console.error('Unexpected error fetching tasks:', err)
+    } finally {
+      set({ loading: false })
+    }
   },
 
   createTask: async (taskData) => {
@@ -26,7 +35,7 @@ export const useTaskStore = create((set, get) => ({
       .select()
       .single()
     if (!error && data) {
-      set({ tasks: [data, ...get().tasks] })
+      set((state) => ({ tasks: [data, ...state.tasks] }))
       return data
     }
     return null
@@ -39,28 +48,37 @@ export const useTaskStore = create((set, get) => ({
       tasks: previousTasks.map((t) => (t.id === id ? { ...t, ...updates } : t))
     })
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
 
-    if (error) {
+      if (error) {
+        console.error('Error updating task:', error)
+        set({ tasks: previousTasks })
+        return null
+      }
+
+      if (data) {
+        set((state) => ({
+          tasks: state.tasks.map((t) => (t.id === id ? data : t))
+        }))
+      }
+      return data
+    } catch (err) {
+      console.error('Unexpected error updating task:', err)
       set({ tasks: previousTasks })
       return null
     }
-
-    if (data) {
-      set({ tasks: get().tasks.map((t) => (t.id === id ? data : t)) })
-    }
-    return data
   },
 
   deleteTask: async (id) => {
     const { error } = await supabase.from('tasks').delete().eq('id', id)
     if (!error) {
-      set({ tasks: get().tasks.filter((t) => t.id !== id) })
+      set((state) => ({ tasks: state.tasks.filter((t) => t.id !== id) }))
     }
   },
 
@@ -190,21 +208,25 @@ export const useTaskStore = create((set, get) => ({
           const { eventType, new: newRecord, old: oldRecord } = payload
 
           set((state) => {
+            const currentTasks = [...state.tasks]
+            
             if (eventType === 'INSERT') {
-              if (state.tasks.some(t => t.id === newRecord.id)) return state
-              return { tasks: [newRecord, ...state.tasks] }
+              if (currentTasks.some(t => t.id === newRecord.id)) return state
+              return { tasks: [newRecord, ...currentTasks] }
             }
+            
             if (eventType === 'UPDATE') {
-              // Solo actualizar si es diferente para evitar ciclos
               return {
-                tasks: state.tasks.map(t => t.id === newRecord.id ? newRecord : t)
+                tasks: currentTasks.map(t => t.id === newRecord.id ? newRecord : t)
               }
             }
+            
             if (eventType === 'DELETE') {
               return {
-                tasks: state.tasks.filter(t => t.id !== oldRecord.id)
+                tasks: currentTasks.filter(t => t.id !== oldRecord.id)
               }
             }
+            
             return state
           })
         }
