@@ -278,3 +278,97 @@ export async function getDailyRecommendation(tasks, reminders) {
     return null
   }
 }
+
+export async function generateTaskPrompt(task, academicContext) {
+  const { apiKey, endpoint, model } = getConfig()
+
+  // Validación API Key
+  if (!apiKey) {
+    throw new Error('NO_API_KEY - Por favor configura tu API key de Groq')
+  }
+
+  if (apiKey.trim().length === 0) {
+    throw new Error('API_KEY_EMPTY - La API key está vacía')
+  }
+
+  const url = `${endpoint}/chat/completions`
+  const subjectName = academicContext?.subjectName || task.subject || 'la materia correspondiente'
+
+  const promptContent = `Eres un experto en diseño de prompts académicos. 
+Con base en esta tarea universitaria, genera un prompt 
+detallado y actionable para que otra IA la resuelva o 
+desarrolle. El prompt debe: definir un rol experto según 
+la materia, incluir todos los requisitos de la tarea, 
+pedir un plan antes de ejecutar, y estar listo para 
+copiar y pegar sin modificaciones.
+
+Aquí tienes la información de la tarea universitaria:
+- Materia: ${subjectName}
+- Título de la tarea: ${task.title}
+- Descripción / Rúbrica: ${task.description || 'Sin descripción específica.'}
+- Fecha de entrega: ${task.due_date || 'No especificada'}
+- Duración estimada: ${task.duration_hours || 'No especificada'} horas
+- Prioridad asignada por la IA: ${task.ai_priority || 'Media'}
+${academicContext ? `- Nota actual en la materia: ${academicContext.currentGrade !== undefined ? academicContext.currentGrade : 'No disponible'}
+- Créditos de la materia: ${academicContext.credits || 'No disponible'}
+- Peso de esta tarea en la evaluación: ${academicContext.taskWeight ? academicContext.taskWeight + '%' : 'No disponible'}
+- Nota objetivo/actual de la tarea: ${academicContext.taskScore || 'No disponible'}` : ''}
+
+El prompt que generes debe estar redactado en primera persona o como una instrucción directa y clara para la IA externa (por ejemplo: "Actúa como un experto en..."). Debe ser completo, profesional, altamente detallado y estructurado, e incluir explícitamente:
+1. El rol experto especializado según la materia.
+2. El objetivo concreto y delinear la tarea.
+3. La rúbrica/requisitos descritos en la tarea.
+4. El nivel académico universitario, la extensión esperada e instrucciones para ajustarse a la fecha límite.
+5. Una solicitud explícita para que la IA proponga un plan de trabajo detallado paso a paso ANTES de proceder a generar o resolver la tarea.
+6. Que sea completamente accionable desde el primer mensaje, sin ser genérico.
+7. Devuelve ÚNICAMENTE el prompt generado, listo para copiar y pegar directamente, sin introducciones ("Aquí tienes tu prompt:"), sin comentarios ni explicaciones adicionales, y sin comillas innecesarias que lo envuelvan.`
+
+  const requestBody = {
+    model,
+    messages: [
+      {
+        role: 'user',
+        content: promptContent,
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 400,
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(requestBody),
+    })
+
+    if (!response.ok) {
+      const rawText = await response.text()
+      let errorData = {}
+      try {
+        errorData = JSON.parse(rawText)
+      } catch {
+        // ignora si no es JSON
+      }
+      throw new Error(
+        errorData?.error?.message ||
+        `Error API: ${response.status}`
+      )
+    }
+
+    const data = await response.json()
+    const text = data?.choices?.[0]?.message?.content?.trim() || ''
+
+    if (!text) {
+      throw new Error('La IA devolvió un prompt vacío.')
+    }
+
+    return text
+  } catch (error) {
+    console.error('🚨 Error en generateTaskPrompt:', error)
+    throw error
+  }
+}

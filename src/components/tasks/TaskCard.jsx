@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 import { useUIStore } from '../../store/uiStore'
 import { useTaskStore } from '../../store/taskStore'
 import { useAcademicStore } from '../../store/academicStore'
+import PromptModal from './PromptModal'
 
 const PRIORITY_COLORS = {
   'Crítica': '#8B2E2E',
@@ -30,6 +31,7 @@ export default function TaskCard({ task, index = 0 }) {
   
   // Local state for the slider to avoid rapid DB calls
   const [localProgress, setLocalProgress] = useState(task.progress || 0)
+  const [isPromptModalOpen, setIsPromptModalOpen] = useState(false)
   const lastSyncedProgress = useRef(task.progress || 0)
 
   // Sync local state when task prop changes (from external updates)
@@ -131,6 +133,17 @@ export default function TaskCard({ task, index = 0 }) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke={isCompleted ? '#2E6B5E' : '#C8C5B8'} strokeWidth="2" strokeLinecap="round">
               <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </button>
+
+          {/* Generar Prompt */}
+          <button
+            onClick={() => setIsPromptModalOpen(true)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-terracotta/10 transition-colors group/promptbtn"
+            title="Generar Prompt Experto con IA"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8C5B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/promptbtn:stroke-terracotta group-hover/promptbtn:scale-115 transition-all">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
             </svg>
           </button>
 
@@ -257,6 +270,16 @@ export default function TaskCard({ task, index = 0 }) {
           {getStudyPlan(task.id)}
         </div>
       )}
+
+      {/* Prompt Modal Overlay */}
+      <AnimatePresence>
+        {isPromptModalOpen && (
+          <PromptModal
+            task={task}
+            onClose={() => setIsPromptModalOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
