@@ -6,8 +6,8 @@ import { saveConfig } from '../../lib/aiService'
 export default function SettingsModal() {
   const { settingsOpen, closeSettings } = useUIStore()
   const [apiKey, setApiKey] = useState(localStorage.getItem('sf_api_key') || '')
-  const [endpoint, setEndpoint] = useState(localStorage.getItem('sf_api_endpoint') || 'https://generativelanguage.googleapis.com/v1beta')
-  const [model, setModel] = useState(localStorage.getItem('sf_api_model') || 'gemini-2.0-flash')
+  const [endpoint, setEndpoint] = useState(localStorage.getItem('sf_api_endpoint') || 'https://api.groq.com/openai/v1')
+  const [model, setModel] = useState(localStorage.getItem('sf_api_model') || 'llama-3.1-8b-instant')
   const [saved, setSaved] = useState(false)
 
   const handleSave = () => {

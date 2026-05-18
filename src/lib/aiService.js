@@ -40,7 +40,7 @@ function buildPrompt(task) {
     0,
     Math.ceil(
       (new Date(task.dueDate) - new Date()) /
-        (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24)
     )
   )
 
@@ -171,7 +171,7 @@ export async function classifyTask(task) {
 
       throw new Error(
         errorData?.error?.message ||
-          `Error API: ${response.status}`
+        `Error API: ${response.status}`
       )
     }
 
@@ -254,7 +254,7 @@ export async function getDailyRecommendation(tasks, reminders) {
   4. Responde con texto plano, sin JSON.`
 
   const url = `${endpoint}/chat/completions`
-  
+
   try {
     const response = await fetch(url, {
       method: 'POST',
