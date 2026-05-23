@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 import { useAcademicStore } from '../../store/academicStore'
@@ -14,10 +14,73 @@ export default function AcademicModule() {
   } = useAcademicStore()
 
   const [selectedSubjectId, setSelectedSubjectId] = useState(subjects[0]?.id || '')
+  const [targetInput, setTargetInput] = useState('3.0')
+  const [isProjectionOpen, setIsProjectionOpen] = useState(false)
+
+  // Synchronize selectedSubjectId when the subjects list changes due to program switching
+  useEffect(() => {
+    if (subjects.length > 0) {
+      if (!selectedSubjectId || !subjects.some(s => s.id === selectedSubjectId)) {
+        setSelectedSubjectId(subjects[0].id)
+      }
+    } else {
+      setSelectedSubjectId('')
+    }
+  }, [subjects, selectedSubjectId])
 
   const currentSubject = subjects.find(s => s.id === selectedSubjectId)
   const academicData = getSubjectData(selectedSubjectId)
   const stats = calculateCurrentGrade(selectedSubjectId)
+
+  // Projection Calculations
+  const target = targetInput === '' ? 3.0 : parseFloat(targetInput)
+  const currentWeighted = stats.currentWeighted || 0
+  const remainingPercentage = stats.remainingPercentage !== undefined ? stats.remainingPercentage : (100 - stats.percentageEvaluated)
+
+  let neededOnRemaining = 0
+  if (remainingPercentage > 0) {
+    neededOnRemaining = (target - currentWeighted) / (remainingPercentage / 100)
+  }
+
+  let statusText = ''
+  let statusColor = '#4ade80' // default green
+
+  if (remainingPercentage === 0) {
+    statusText = `Materia finalizada. Nota: ${currentWeighted.toFixed(2)}`
+    statusColor = currentWeighted >= target ? '#4ade80' : '#f87171'
+  } else if (neededOnRemaining <= 0) {
+    statusText = "Ya tienes la materia ganada 🎉"
+    statusColor = '#4ade80'
+  } else if (neededOnRemaining <= 3.0) {
+    statusText = `Vas bien, necesitas ${neededOnRemaining.toFixed(2)} en lo que resta`
+    statusColor = '#4ade80'
+  } else if (neededOnRemaining <= 4.0) {
+    statusText = `Posible, pero debes esforzarte: ${neededOnRemaining.toFixed(2)}`
+    statusColor = '#fbbf24'
+  } else if (neededOnRemaining <= 5.0) {
+    statusText = `Difícil, necesitas ${neededOnRemaining.toFixed(2)} — prioridad alta`
+    statusColor = '#fb923c'
+  } else {
+    statusText = "Materia en riesgo ⚠️"
+    statusColor = '#f87171'
+  }
+
+  const handleTargetChange = (e) => {
+    const val = e.target.value
+    if (val === '') {
+      setTargetInput('')
+      return
+    }
+    const parsed = parseFloat(val)
+    if (isNaN(parsed)) return
+    if (parsed > 5.0) {
+      setTargetInput('5.0')
+    } else if (parsed < 0) {
+      setTargetInput('0.0')
+    } else {
+      setTargetInput(val)
+    }
+  }
 
   const handleAddEvaluation = () => {
     const newEv = {
@@ -133,6 +196,135 @@ export default function AcademicModule() {
                 <div className={`px-4 py-1.5 rounded-full text-xs font-medium ${totalPercentage === 100 ? 'bg-green-500/20 text-green-400' : 'bg-terracotta/20 text-terracotta'}`}>
                   Total: {totalPercentage}%
                 </div>
+              </div>
+
+              {/* Projection Calculator Card */}
+              <div className="mb-6 bg-white/[0.02] border border-beige/10 rounded-2xl overflow-hidden backdrop-blur-md">
+                <button
+                  onClick={() => setIsProjectionOpen(!isProjectionOpen)}
+                  className="w-full px-6 py-4 flex items-center justify-between text-beige hover:text-white transition-colors focus:outline-none"
+                >
+                  <div className="flex items-center gap-3">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-terracotta">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <line x1="9" y1="9" x2="15" y2="9" />
+                      <line x1="9" y1="13" x2="15" y2="13" />
+                      <line x1="9" y1="17" x2="15" y2="17" />
+                      <line x1="10" y1="9" x2="10" y2="17" />
+                    </svg>
+                    <span className="font-semibold text-sm tracking-wide">Calculadora de Proyección de Notas</span>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: isProjectionOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </motion.div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isProjectionOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      className="border-t border-white/5 bg-white/[0.01]"
+                    >
+                      <div className="p-6 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Left Section: Target Input & Current Stats */}
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-[10px] text-beige-dark uppercase tracking-widest block mb-2 font-medium">Nota Objetivo</label>
+                              <div className="relative flex items-center">
+                                <input
+                                  type="number"
+                                  min="0.0"
+                                  max="5.0"
+                                  step="0.1"
+                                  value={targetInput}
+                                  onChange={handleTargetChange}
+                                  className="w-full bg-teal-darker/40 text-beige font-semibold px-4 py-2.5 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm"
+                                />
+                                <span className="absolute right-4 text-xs text-beige-dark/60 font-semibold">/ 5.0</span>
+                              </div>
+                              <p className="text-[10px] text-beige-dark/50 mt-1.5 italic">Modifica el valor para recalcular en tiempo real.</p>
+                            </div>
+
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-beige-dark">Puntos acumulados:</span>
+                                <span className="font-semibold text-beige">{stats.currentWeighted.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-xs">
+                                <span className="text-beige-dark">Promedio actual:</span>
+                                <span className="font-semibold text-terracotta">{stats.average.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right Section: Projection Result & Visual Bar */}
+                          <div className="flex flex-col justify-between space-y-4">
+                            {/* Status Message and Needed Grade */}
+                            <div 
+                              className="p-4 rounded-xl border flex flex-col justify-center transition-all duration-300"
+                              style={{
+                                backgroundColor: `${statusColor}10`,
+                                borderColor: `${statusColor}25`
+                              }}
+                            >
+                              <p className="text-[10px] text-beige-dark uppercase tracking-wider mb-1">Resultado de Proyección</p>
+                              
+                              {remainingPercentage > 0 && neededOnRemaining > 0 && neededOnRemaining <= 5.0 && (
+                                <div className="mb-2">
+                                  <span className="text-3xl font-display font-bold" style={{ color: statusColor }}>
+                                    {neededOnRemaining.toFixed(2)}
+                                  </span>
+                                  <span className="text-xs text-beige-dark ml-2">necesario en lo restante ({remainingPercentage}%)</span>
+                                </div>
+                              )}
+
+                              <p className="text-sm font-semibold" style={{ color: statusColor }}>
+                                {statusText}
+                              </p>
+                            </div>
+
+                            {/* Progress bar visual */}
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-[10px] text-beige-dark">
+                                <span>Evaluado ({stats.percentageEvaluated}%)</span>
+                                <span>Restante ({remainingPercentage}%)</span>
+                              </div>
+                              <div className="w-full h-3 rounded-full bg-white/5 overflow-hidden flex border border-white/5 p-[1px]">
+                                {stats.percentageEvaluated > 0 && (
+                                  <div 
+                                    className="h-full rounded-l-full transition-all duration-500"
+                                    style={{ 
+                                      width: `${stats.percentageEvaluated}%`,
+                                      backgroundColor: statusColor,
+                                      boxShadow: `0 0 8px ${statusColor}40`
+                                    }}
+                                  />
+                                )}
+                                {remainingPercentage > 0 && (
+                                  <div 
+                                    className={`h-full bg-white/10 transition-all duration-500 ${stats.percentageEvaluated === 0 ? 'rounded-full' : 'rounded-r-full border-l border-white/10'}`}
+                                    style={{ 
+                                      width: `${remainingPercentage}%`
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div className="space-y-4">

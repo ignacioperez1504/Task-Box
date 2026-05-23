@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useUIStore } from '../../store/uiStore'
 import { useTaskStore } from '../../store/taskStore'
+import ProgramSelector from '../programs/ProgramSelector'
 import WeeklyProgress from '../stats/WeeklyProgress'
 import CriticalCounter from '../stats/CriticalCounter'
 import PendingTime from '../stats/PendingTime'
@@ -158,6 +159,9 @@ export default function Sidebar() {
           Academic Task Manager
         </p>
       </div>
+
+      {/* Program Selector */}
+      <ProgramSelector />
 
       {/* Navegación */}
       <nav className="px-3 mb-4">

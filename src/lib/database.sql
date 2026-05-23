@@ -3,11 +3,21 @@
 -- Ejecutar en Supabase SQL Editor
 -- ============================================
 
+-- 0. Tabla de programas académicos
+CREATE TABLE programs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  institution TEXT,
+  color_hex TEXT NOT NULL DEFAULT '#C27A55',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 1. Tabla de materias/asignaturas
 CREATE TABLE subjects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL UNIQUE,
   color_hex TEXT NOT NULL DEFAULT '#C27A55',
+  program_id UUID REFERENCES programs(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -54,11 +64,13 @@ CREATE TABLE app_config (
 -- ============================================
 -- Desactivar RLS (no hay autenticación)
 -- ============================================
+ALTER TABLE programs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_config ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY "Allow all on programs" ON programs FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on subjects" ON subjects FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on tasks" ON tasks FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on goals" ON goals FOR ALL USING (true) WITH CHECK (true);

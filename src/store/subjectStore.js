@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
+import { useProgramStore } from './programStore'
 
 const PALETTE = [
   '#C27A55', '#2E6B5E', '#C9A96E', '#8B6F5E', '#5E8B7A',
@@ -12,10 +13,15 @@ export const useSubjectStore = create((set, get) => ({
 
   fetchSubjects: async () => {
     set({ loading: true })
-    const { data, error } = await supabase
-      .from('subjects')
-      .select('*')
-      .order('name')
+    const activeProgram = useProgramStore.getState().activeProgram
+    
+    let query = supabase.from('subjects').select('*')
+    
+    if (activeProgram) {
+      query = query.eq('program_id', activeProgram.id)
+    }
+    
+    const { data, error } = await query.order('name')
     if (!error) set({ subjects: data || [] })
     set({ loading: false })
   },
@@ -23,9 +29,20 @@ export const useSubjectStore = create((set, get) => ({
   createSubject: async (name) => {
     const existing = get().subjects
     const colorIndex = existing.length % PALETTE.length
+    const activeProgram = useProgramStore.getState().activeProgram
+    
+    const insertData = { 
+      name, 
+      color_hex: PALETTE[colorIndex] 
+    }
+    
+    if (activeProgram) {
+      insertData.program_id = activeProgram.id
+    }
+    
     const { data, error } = await supabase
       .from('subjects')
-      .insert({ name, color_hex: PALETTE[colorIndex] })
+      .insert(insertData)
       .select()
       .single()
     if (!error && data) {
@@ -44,3 +61,12 @@ export const useSubjectStore = create((set, get) => ({
     return s?.color_hex || '#C27A55'
   },
 }))
+
+// Auto-refetch subjects when active program changes
+useProgramStore.subscribe((state, prevState) => {
+  const activeId = state.activeProgram?.id
+  const prevActiveId = prevState?.activeProgram?.id
+  if (activeId !== prevActiveId) {
+    useSubjectStore.getState().fetchSubjects()
+  }
+})
