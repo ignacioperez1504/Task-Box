@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useUIStore } from '../../store/uiStore'
 import { useTaskStore } from '../../store/taskStore'
 import WeeklyProgress from '../stats/WeeklyProgress'
@@ -73,6 +74,74 @@ export default function Sidebar() {
     getProductivityStreak,
   } = useTaskStore()
 
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isSupported, setIsSupported] = useState(false)
+
+  useEffect(() => {
+    const checkSupport = () => {
+      if (typeof document === 'undefined') return false
+      const docEl = document.documentElement
+      return !!(
+        docEl.requestFullscreen ||
+        docEl.mozRequestFullScreen ||
+        docEl.webkitRequestFullscreen ||
+        docEl.msRequestFullscreen
+      )
+    }
+
+    setIsSupported(checkSupport())
+
+    const handleFullscreenChange = () => {
+      const activeEl = (
+        document.fullscreenElement ||
+        document.mozFullScreenElement ||
+        document.webkitFullscreenElement ||
+        document.msFullscreenElement
+      )
+      setIsFullscreen(!!activeEl)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange)
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange)
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange)
+    }
+  }, [])
+
+  const toggleFullscreen = () => {
+    const docEl = document.documentElement
+    const activeEl = (
+      document.fullscreenElement ||
+      document.mozFullScreenElement ||
+      document.webkitFullscreenElement ||
+      document.msFullscreenElement
+    )
+
+    if (!activeEl) {
+      const req = (
+        docEl.requestFullscreen ||
+        docEl.mozRequestFullScreen ||
+        docEl.webkitRequestFullscreen ||
+        docEl.msRequestFullscreen
+      )
+      if (req) req.call(docEl)
+    } else {
+      const exit = (
+        document.exitFullscreen ||
+        document.mozCancelFullScreen ||
+        document.webkitExitFullscreen ||
+        document.msExitFullscreen
+      )
+      if (exit) exit.call(document)
+    }
+  }
+
   return (
     <aside
       className="w-[280px] min-w-[280px] h-screen flex flex-col overflow-y-auto border-r border-beige/8 gap-4"
@@ -131,11 +200,57 @@ export default function Sidebar() {
         <GoalList />
       </div>
 
-      {/* Config button */}
-      <div className="px-5 py-4 border-t border-beige/8 mt-auto">
+      {/* Config & Fullscreen buttons */}
+      <div className="px-5 py-4 border-t border-beige/8 mt-auto flex flex-col gap-3">
+        {isSupported && (
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+            className="flex items-center gap-2 text-sm text-beige-dark hover:text-beige transition-colors duration-250 cursor-pointer"
+          >
+            {isFullscreen ? (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  filter: 'drop-shadow(0 0 4px rgba(57, 211, 83, 0.6))',
+                  color: '#39D353',
+                }}
+              >
+                <polyline points="4 14 10 14 10 20" />
+                <polyline points="20 10 14 10 14 4" />
+                <line x1="14" y1="10" x2="21" y2="3" />
+                <line x1="10" y1="14" x2="3" y2="21" />
+              </svg>
+            ) : (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 3 21 3 21 9" />
+                <polyline points="9 21 3 21 3 15" />
+                <line x1="21" y1="3" x2="14" y2="10" />
+                <line x1="3" y1="21" x2="10" y2="14" />
+              </svg>
+            )}
+            {isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+          </button>
+        )}
         <button
           onClick={openSettings}
-          className="flex items-center gap-2 text-sm text-beige-dark hover:text-beige transition-colors duration-250"
+          className="flex items-center gap-2 text-sm text-beige-dark hover:text-beige transition-colors duration-250 cursor-pointer"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <circle cx="12" cy="12" r="3" />

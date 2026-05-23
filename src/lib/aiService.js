@@ -1,3 +1,5 @@
+import { useContextStore } from '../store/contextStore'
+
 // ↓ CAMBIO 1: nueva URL base de Groq
 const DEFAULT_ENDPOINT = 'https://api.groq.com/openai/v1'
 
@@ -6,6 +8,22 @@ const DEFAULT_MODEL = 'llama-3.1-8b-instant'
 
 // Cache simple en memoria
 const classificationCache = new Map()
+
+export function clearClassificationCache() {
+  classificationCache.clear()
+}
+
+/**
+ * Returns the formatted student-profile block for AI prompts,
+ * or null when the profile is empty.
+ */
+function getProfileContext() {
+  try {
+    return useContextStore.getState().buildContextBlock()
+  } catch {
+    return null
+  }
+}
 
 function getCacheKey(task) {
   return `${task.title}|${task.subject}|${task.dueDate}|${task.duration}|${task.importance}|${task.academicContext?.taskWeight || 0}`
@@ -43,6 +61,7 @@ function buildPrompt(task) {
       (1000 * 60 * 60 * 24)
     )
   )
+  const profileCtx = getProfileContext()
 
   return `Clasifica esta tarea académica. Responde SOLO con JSON válido, sin texto extra.
 
@@ -71,6 +90,9 @@ ${task.eventsContext && task.eventsContext.count > 0 ? `
 Eventos/Recordatorios del día:
 - Pendientes: ${task.eventsContext.reminders.join(', ')}
 - Total eventos extra: ${task.eventsContext.count}` : ''}
+${profileCtx ? `
+Perfil del Estudiante:
+${profileCtx}` : ''}
 
 Reglas:
 1. <48h restantes → Crítica o Alta (salvo tarea trivial)
@@ -79,7 +101,7 @@ Reglas:
 4. Si la tarea vale mucho (> 10% de la materia), súbele la prioridad.
 5. Considera la carga de hábitos: si el usuario tiene muchos hábitos y ya completó varios, está en un día productivo pero ocupado.
 6. Carga de eventos externos: si el día de entrega tiene muchos recordatorios (${task.eventsContext?.count || 0}), el tiempo disponible es menor. Aumenta la urgencia o sugiere dividir la tarea.
-7. Materias de alta carga cognitiva (Cálculo, Física, Química Orgánica, Termodinámica) tienen prioridad mayor.
+7. Materias de alta carga cognitiva (Cálculo, Física, Química Orgánica, Termodinámica) o que aparecen en las "materias con dificultad" del perfil tienen prioridad mayor.
 8. suggested_hours puede diferir del estimado si lo justifica la complejidad
 9. study_plan: genera un plan de acción concreto basado en:
    - Días restantes (${daysLeft})
@@ -87,7 +109,8 @@ Reglas:
    - Nota actual en materia (${task.academicContext?.averageGrade.toFixed(2) || 'N/A'}) y peso de la tarea (${task.academicContext?.taskWeight || 0}%)
    Ejemplo: "Tienes 4 días. Estudia 2h hoy, descansa mañana (tienes partido), y dedica 3h los últimos 2 días."
 10. recommendation: resumen motivador muy breve.
-11. Responde SOLO con el JSON.`
+11. Si hay "Perfil del Estudiante", adapta el study_plan a su horario laboral y estilo de aprendizaje, y sube la prioridad si la materia está en sus dificultades.
+12. Responde SOLO con el JSON.`
 }
 
 export async function classifyTask(task) {
@@ -239,19 +262,22 @@ export async function getDailyRecommendation(tasks, reminders) {
   const { apiKey, endpoint, model } = getConfig()
   if (!apiKey) return null
 
+  const profileCtx = getProfileContext()
   const prompt = `Eres un asistente académico experto. Basado en las siguientes tareas y recordatorios de HOY, da una recomendación corta (máx 3 frases) sobre qué priorizar y cómo empezar.
-  
+
   TAREAS TOP (prioridad + score):
   ${tasks.map(t => `- ${t.title} (${t.ai_priority}, ${t.progress || 0}% progreso, vence: ${t.due_date})`).join('\n')}
-  
+
   RECORDATORIOS DE HOY:
   ${reminders.length > 0 ? reminders.map(r => `- ${r.title}`).join('\n') : 'Ninguno'}
-  
+  ${profileCtx ? `\n  PERFIL DEL ESTUDIANTE:\n${profileCtx.split('\n').map(l => '  ' + l).join('\n')}` : ''}
   REGLAS:
   1. Sé directo y motivador.
   2. Si una tarea tiene progreso alto (>70%), sugiere terminarla.
   3. Si hay muchos recordatorios, sugiere enfocarse solo en lo más crítico.
-  4. Responde con texto plano, sin JSON.`
+  4. Si el perfil indica materias débiles, prioriza tareas de esas materias.
+  5. Adapta el tono al horario laboral del estudiante si está disponible.
+  6. Responde con texto plano, sin JSON.`
 
   const url = `${endpoint}/chat/completions`
 
