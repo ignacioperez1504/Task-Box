@@ -4,12 +4,16 @@ import { useUIStore } from '../../store/uiStore'
 import CalendarTask from './CalendarTask'
 import CalendarReminder from './CalendarReminder'
 
+const GRID_LINE = '#959da4'
+
+// Hex literals (not var()) so the alpha-suffix trick below is reliable
+// regardless of color-mix() browser support.
 const LOAD_COLORS = {
-  0: '#2E6B5E', // Low
-  1: '#1B3A35', // Base teal
-  2: '#C9A96E', // Medium yellow
-  4: '#C27A55', // High terracotta
-  6: '#8B2E2E', // Critical red
+  0: '#3F6180',
+  1: '#4A90E2',
+  2: '#4FAE8C',
+  4: '#E8825B',
+  6: '#E15252',
 }
 
 function getLoadColor(count) {
@@ -22,7 +26,7 @@ function getLoadColor(count) {
 
 export default function CalendarDay({ date, isCurrentMonth, tasks, reminders = [] }) {
   const { setSelectedDate, setActiveSection } = useUIStore()
-  
+
   const dateStr = date.toISOString().split('T')[0]
   const todayStr = new Date().toISOString().split('T')[0]
   const isToday = dateStr === todayStr
@@ -54,18 +58,19 @@ export default function CalendarDay({ date, isCurrentMonth, tasks, reminders = [
     <div
       ref={setNodeRef}
       onClick={handleDayClick}
-      className={`relative min-h-[120px] p-2 border-r border-b border-beige/10 transition-colors duration-200 cursor-pointer
-        ${!isCurrentMonth ? 'opacity-30 bg-black/20' : 'hover:bg-teal-darker/20'}
-        ${isOver ? 'bg-beige/5' : ''}
+      className={`relative min-h-[96px] p-2 transition-colors duration-200 cursor-pointer
+        ${!isCurrentMonth ? 'opacity-30' : 'hover-surface'}
       `}
       style={{
-        backgroundColor: isOver ? 'rgba(200,197,184,0.05)' : 'transparent',
+        borderRight: `1px solid ${GRID_LINE}`,
+        borderBottom: `1px solid ${GRID_LINE}`,
+        backgroundColor: isOver ? 'rgba(232,130,91,0.12)' : 'transparent',
       }}
     >
       {/* Top indicator bar based on load */}
       {isCurrentMonth && tasks.length > 0 && (
-        <div 
-          className="absolute top-0 left-0 right-0 h-0.5 opacity-50"
+        <div
+          className="absolute top-0 left-0 right-0 h-0.5 opacity-70"
           style={{ backgroundColor: loadColor }}
         />
       )}
@@ -73,19 +78,23 @@ export default function CalendarDay({ date, isCurrentMonth, tasks, reminders = [
       {/* Date header */}
       <div className="flex items-start justify-between mb-2">
         <span
-          className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium
-            ${isToday ? 'bg-terracotta text-black' : 'text-beige-dark'}
-          `}
+          className="rounded-full flex items-center justify-center"
+          style={{
+            width: 26, height: 26, fontSize: 13, fontWeight: 600,
+            background: isToday ? 'var(--color-terracotta)' : 'transparent',
+            color: isToday ? 'var(--fg-on-accent)' : 'var(--fg-primary)',
+          }}
         >
           {date.getDate()}
         </span>
-        
+
         {totalCount > 0 && (
-          <span 
-            className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-            style={{ 
-              backgroundColor: loadColor + '30', 
-              color: loadColor === '#1B3A35' ? '#C8C5B8' : (tasks.length > 0 ? loadColor : '#C27A55')
+          <span
+            className="rounded-md"
+            style={{
+              fontSize: 10, fontWeight: 600, padding: '2px 6px',
+              background: loadColor + '73',
+              color: tasks.length > 0 ? loadColor : 'var(--color-terracotta)',
             }}
           >
             {totalCount}
@@ -96,13 +105,13 @@ export default function CalendarDay({ date, isCurrentMonth, tasks, reminders = [
       {/* Items list (Tasks + Reminders) */}
       <div className="space-y-1">
         {allItems.slice(0, 3).map((item) => (
-          item.type === 'task' 
+          item.type === 'task'
             ? <CalendarTask key={item.data.id} task={item.data} />
             : <CalendarReminder key={item.data.id} reminder={item.data} />
         ))}
-        
+
         {totalCount > 3 && (
-          <div className="text-[10px] text-beige-dark text-center mt-1 py-1 bg-black/20 rounded">
+          <div className="text-[10px] text-center mt-1 py-1 rounded" style={{ color: 'var(--fg-secondary)', background: 'rgba(var(--ink-rgb),.05)' }}>
             + {totalCount - 3} más
           </div>
         )}
@@ -110,7 +119,7 @@ export default function CalendarDay({ date, isCurrentMonth, tasks, reminders = [
 
       {/* Overlay highlight when dragging over */}
       {isOver && (
-        <div className="absolute inset-0 border-2 border-dashed border-beige/30 rounded pointer-events-none" />
+        <div className="absolute inset-0 border-2 border-dashed rounded pointer-events-none" style={{ borderColor: 'rgba(232,130,91,.5)' }} />
       )}
     </div>
   )

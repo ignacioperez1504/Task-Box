@@ -50,12 +50,13 @@ export default function ProgramSelector() {
       <div className="flex items-center gap-1.5 w-full">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex-1 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-300 bg-white/5 hover:bg-white/10 text-beige border border-beige/10 shadow-sm cursor-pointer"
+          className="flex-1 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-300 hover-surface shadow-sm cursor-pointer"
+          style={{ background: 'var(--glass-bg)', color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
         >
           <div className="flex items-center gap-2.5 truncate">
-            <div 
-              className="w-2.5 h-2.5 rounded-full shrink-0" 
-              style={{ backgroundColor: activeProgram?.color_hex || '#C27A55' }}
+            <div
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: activeProgram?.color_hex || 'var(--color-terracotta)' }}
             />
             <span className="font-semibold truncate">
               {activeProgram ? activeProgram.name : 'Todos los programas'}
@@ -77,7 +78,8 @@ export default function ProgramSelector() {
         {/* Quick Add Button */}
         <button
           onClick={handleOpenCreateModal}
-          className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-beige-dark hover:text-beige border border-beige/10 transition-colors cursor-pointer"
+          className="p-2.5 rounded-xl hover-surface transition-colors cursor-pointer"
+          style={{ background: 'var(--glass-bg)', color: 'var(--fg-secondary)', border: '1px solid var(--glass-border)' }}
           title="Agregar Programa Académico"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -95,31 +97,36 @@ export default function ProgramSelector() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-3 right-3 z-50 mt-1.5 glass-dark rounded-xl border border-beige/10 shadow-elevated py-1 max-h-[220px] overflow-y-auto custom-scrollbar"
+            className="absolute top-full left-3 right-3 z-50 mt-1.5 rounded-xl py-1 max-h-[220px] overflow-y-auto custom-scrollbar"
+            style={{
+              background: 'var(--glass-bg-strong)',
+              border: '1px solid var(--glass-border)',
+              backdropFilter: 'blur(var(--blur-glass))',
+              WebkitBackdropFilter: 'blur(var(--blur-glass))',
+              boxShadow: 'var(--shadow-elevated)',
+            }}
           >
             {/* View All Option */}
             <button
               onClick={() => handleSelect(null)}
-              className={`w-full flex items-center justify-between px-4 py-2 text-xs transition-colors hover:bg-white/5 ${
-                !activeProgram ? 'text-white font-semibold' : 'text-beige-dark'
-              }`}
+              className="w-full flex items-center justify-between px-4 py-2 text-xs transition-colors hover-surface"
+              style={{ color: !activeProgram ? 'var(--fg-primary)' : 'var(--fg-secondary)', fontWeight: !activeProgram ? 600 : 400 }}
             >
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-beige" />
+                <div className="w-2 h-2 rounded-full" style={{ background: 'var(--fg-tertiary)' }} />
                 <span>Ver todos los programas</span>
               </div>
               {!activeProgram && <span>✓</span>}
             </button>
 
-            {programs.length > 0 && <div className="h-px bg-beige/10 my-1" />}
+            {programs.length > 0 && <div className="h-px my-1" style={{ background: 'var(--divider-soft)' }} />}
 
             {/* Program List */}
             {programs.map((prog) => (
               <div
                 key={prog.id}
-                className={`group/item w-full flex items-center justify-between px-4 py-2 text-xs transition-colors hover:bg-white/5 ${
-                  activeProgram?.id === prog.id ? 'text-white font-semibold' : 'text-beige-dark'
-                }`}
+                className="group/item w-full flex items-center justify-between px-4 py-2 text-xs transition-colors hover-surface"
+                style={{ color: activeProgram?.id === prog.id ? 'var(--fg-primary)' : 'var(--fg-secondary)', fontWeight: activeProgram?.id === prog.id ? 600 : 400 }}
               >
                 <button
                   onClick={() => handleSelect(prog.id)}
@@ -129,17 +136,18 @@ export default function ProgramSelector() {
                   <div className="truncate">
                     <p className="truncate font-medium">{prog.name}</p>
                     {prog.institution && (
-                      <p className="text-[9px] text-beige-dark/50 truncate font-normal mt-0.5">
+                      <p className="text-[9px] truncate font-normal mt-0.5" style={{ color: 'var(--fg-tertiary)' }}>
                         {prog.institution}
                       </p>
                     )}
                   </div>
                 </button>
                 <div className="flex items-center gap-1.5 pl-2">
-                  {activeProgram?.id === prog.id && <span className="text-white">✓</span>}
+                  {activeProgram?.id === prog.id && <span style={{ color: 'var(--fg-primary)' }}>✓</span>}
                   <button
                     onClick={(e) => handleOpenEditModal(e, prog)}
-                    className="opacity-0 group-hover/item:opacity-100 p-1 hover:text-beige transition-opacity cursor-pointer text-beige-dark"
+                    className="opacity-0 group-hover/item:opacity-100 p-1 transition-opacity cursor-pointer"
+                    style={{ color: 'var(--fg-tertiary)' }}
                     title="Editar programa"
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -151,7 +159,7 @@ export default function ProgramSelector() {
             ))}
 
             {programs.length === 0 && (
-              <p className="px-4 py-3 text-[10px] text-beige-dark/50 text-center italic">
+              <p className="px-4 py-3 text-[10px] text-center italic" style={{ color: 'var(--fg-tertiary)' }}>
                 No hay programas creados
               </p>
             )}

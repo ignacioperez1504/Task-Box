@@ -5,12 +5,13 @@ import { useUIStore } from '../../store/uiStore'
 import { useTaskStore } from '../../store/taskStore'
 import { useAcademicStore } from '../../store/academicStore'
 import PromptModal from './PromptModal'
+import Badge from '../ui/Badge'
 
 const PRIORITY_COLORS = {
-  'Crítica': '#8B2E2E',
-  'Alta': '#C27A55',
-  'Media': '#C9A96E',
-  'Baja': '#2E6B5E',
+  'Crítica': '#E15252',
+  'Alta': '#E8825B',
+  'Media': '#E8C468',
+  'Baja': '#4FAE8C',
 }
 
 const CATEGORY_ICONS = {
@@ -64,11 +65,11 @@ export default function TaskCard({ task, index = 0 }) {
   const isOverdue = diffDays < 0 && !isCompleted
 
   let countdownText = ''
-  let countdownColor = '#C8C5B8'
-  if (diffDays === 0) { countdownText = 'Vence hoy'; countdownColor = '#C27A55' }
-  else if (diffDays === 1) { countdownText = 'Vence mañana'; countdownColor = '#C27A55' }
+  let countdownColor = 'var(--fg-secondary)'
+  if (diffDays === 0) { countdownText = 'Vence hoy'; countdownColor = 'var(--color-terracotta)' }
+  else if (diffDays === 1) { countdownText = 'Vence mañana'; countdownColor = 'var(--color-terracotta)' }
   else if (diffDays > 1) { countdownText = `Faltan ${diffDays} días` }
-  else { countdownText = `Vencida hace ${Math.abs(diffDays)} día${Math.abs(diffDays) > 1 ? 's' : ''}`; countdownColor = '#8B2E2E' }
+  else { countdownText = `Vencida hace ${Math.abs(diffDays)} día${Math.abs(diffDays) > 1 ? 's' : ''}`; countdownColor = 'var(--color-priority-critica)' }
 
   const handleProgressChange = (e) => {
     setLocalProgress(parseInt(e.target.value))
@@ -82,12 +83,19 @@ export default function TaskCard({ task, index = 0 }) {
       exit={{ opacity: 0, scale: 0.85 }}
       transition={{ duration: 0.3, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className={`group glass rounded-xl p-5 relative transition-all duration-300
-        ${isInProgress ? 'border-r-2 border-beige/20 shadow-[0_0_15px_rgba(201,169,110,0.1)]' : ''}
+      className={`group rounded-3xl p-5 relative transition-all duration-300
+        ${isInProgress ? 'border-r-2 shadow-[0_0_15px_rgba(232,196,104,0.15)]' : ''}
       `}
       style={{
-        borderLeft: isCritical ? '4px solid #8B2E2E' : (isInProgress ? '4px solid #C9A96E' : '4px solid transparent'),
-        filter: isCompleted ? 'saturate(0.3) brightness(0.85)' : 'none',
+        background: 'var(--glass-bg)',
+        border: '1px solid var(--glass-border)',
+        borderRight: isInProgress ? '2px solid rgba(232,196,104,.5)' : undefined,
+        borderLeft: isCritical ? '3px solid var(--color-priority-critica)' : (isInProgress ? '3px solid var(--color-priority-media)' : '3px solid transparent'),
+        backdropFilter: 'blur(var(--blur-glass))',
+        WebkitBackdropFilter: 'blur(var(--blur-glass))',
+        boxShadow: 'var(--shadow-card), var(--shadow-inset-highlight)',
+        opacity: isCompleted ? 0.55 : 1,
+        filter: isCompleted ? 'saturate(0.5)' : 'none',
         animation: isCritical ? 'pulse-terracotta 4s ease-in-out infinite' : 'none',
       }}
     >
@@ -100,15 +108,11 @@ export default function TaskCard({ task, index = 0 }) {
                 En curso
               </span>
             )}
-            {isCompleted && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teal px-1.5 py-0.5 bg-teal/10 rounded border border-teal/20">
-                Finalizada
-              </span>
-            )}
+            {isCompleted && <Badge color="#4FAE8C">Finalizada</Badge>}
           </div>
           <h3
-            className="font-display text-xl text-beige leading-tight relative inline-block"
-            style={{ textDecoration: isCompleted ? 'none' : 'none' }}
+            className="font-display text-xl leading-tight relative inline-block"
+            style={{ fontWeight: 500, color: 'var(--fg-primary)', textDecoration: isCompleted ? 'none' : 'none' }}
           >
             {task.title}
             {isCompleted && (
@@ -116,7 +120,8 @@ export default function TaskCard({ task, index = 0 }) {
                 initial={{ width: 0 }}
                 animate={{ width: '100%' }}
                 transition={{ duration: 0.5 }}
-                className="absolute left-0 top-1/2 h-0.5 bg-beige-dark"
+                className="absolute left-0 top-1/2 h-0.5"
+                style={{ background: 'var(--fg-tertiary)' }}
               />
             )}
           </h3>
@@ -127,11 +132,11 @@ export default function TaskCard({ task, index = 0 }) {
           {/* Complete */}
           <button
             onClick={() => completeTask(task.id)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-beige/10 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover-surface transition-colors"
             title={isCompleted ? 'Marcar pendiente' : 'Completar'}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke={isCompleted ? '#2E6B5E' : '#C8C5B8'} strokeWidth="2" strokeLinecap="round">
+              stroke={isCompleted ? 'var(--color-priority-baja)' : 'var(--fg-secondary)'} strokeWidth="2" strokeLinecap="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </button>
@@ -142,7 +147,7 @@ export default function TaskCard({ task, index = 0 }) {
             className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-terracotta/10 transition-colors group/promptbtn"
             title="Generar Prompt Experto con IA"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8C5B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/promptbtn:stroke-terracotta group-hover/promptbtn:scale-115 transition-all">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/promptbtn:stroke-terracotta group-hover/promptbtn:scale-115 transition-all">
               <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
             </svg>
           </button>
@@ -150,9 +155,9 @@ export default function TaskCard({ task, index = 0 }) {
           {/* Edit */}
           <button
             onClick={() => openEditPanel(task)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-beige/10 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover-surface transition-colors"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8C5B8" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
@@ -163,7 +168,7 @@ export default function TaskCard({ task, index = 0 }) {
             onClick={() => openDeleteModal(task)}
             className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-priority-critica/20 transition-colors"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B2E2E" strokeWidth="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-priority-critica)" strokeWidth="2">
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>
@@ -174,15 +179,15 @@ export default function TaskCard({ task, index = 0 }) {
       {/* Progress Slider */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] text-beige-dark uppercase tracking-widest font-medium">Progreso</span>
-          <span className="text-[10px] font-bold text-beige">{localProgress}%</span>
+          <span className="text-[10px] uppercase font-medium" style={{ letterSpacing: '.15em', color: 'var(--fg-tertiary)' }}>Progreso</span>
+          <span className="text-[10px] font-bold" style={{ color: 'var(--fg-primary)' }}>{localProgress}%</span>
         </div>
-        <div className="relative h-1.5 w-full bg-black/20 rounded-full overflow-hidden group/slider">
-          <div 
+        <div className="relative h-1.5 w-full rounded-full overflow-hidden group/slider" style={{ background: 'rgba(var(--ink-rgb),.25)' }}>
+          <div
             className="absolute top-0 left-0 h-full transition-all duration-500 rounded-full"
-            style={{ 
+            style={{
               width: `${localProgress}%`,
-              backgroundColor: isCompleted ? '#2E6B5E' : (localProgress > 80 ? '#2E6B5E' : (localProgress > 40 ? '#C9A96E' : '#C27A55'))
+              backgroundColor: isCompleted ? '#4FAE8C' : (localProgress > 80 ? '#4FAE8C' : (localProgress > 40 ? '#E8C468' : '#E8825B'))
             }}
           />
           <input
@@ -199,39 +204,34 @@ export default function TaskCard({ task, index = 0 }) {
       </div>
 
       {/* Badges row */}
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap gap-2" style={{ marginBottom: 10 }}>
         {/* Subject */}
         {subject && (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-            style={{ backgroundColor: subject.color_hex + '25', color: subject.color_hex, border: `1px solid ${subject.color_hex}40` }}>
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: subject.color_hex }} />
-            {subject.name}
-          </span>
+          <Badge color={subject.color_hex} dot>{subject.name}</Badge>
         )}
 
         {/* AI Priority */}
         {task.ai_priority && (
-          <span className="px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5"
-            style={{ backgroundColor: (PRIORITY_COLORS[task.ai_priority] || '#C8C5B8') + '25', color: PRIORITY_COLORS[task.ai_priority] || '#C8C5B8' }}>
+          <Badge color={PRIORITY_COLORS[task.ai_priority] || '#94A3B8'}>
             {task.ai_priority}
             {score > 0 && (
               <span className="bg-white/10 px-1.5 rounded font-bold text-[10px]">
                 {score}
               </span>
             )}
-          </span>
+          </Badge>
         )}
 
         {/* Category */}
         {task.ai_category && (
-          <span className="px-2.5 py-1 rounded-full text-xs bg-teal-darker/50 text-beige-dark">
+          <span className="px-2.5 py-1 rounded-full text-xs" style={{ background: 'rgba(var(--ink-rgb),.08)', color: 'var(--fg-secondary)' }}>
             {CATEGORY_ICONS[task.ai_category] || '📌'} {task.ai_category}
           </span>
         )}
       </div>
 
       {/* Info row */}
-      <div className="flex items-center gap-4 text-xs text-beige-dark mb-2">
+      <div className="flex items-center gap-4 text-xs mb-2" style={{ color: 'var(--fg-secondary)' }}>
         {/* Countdown */}
         <span className="flex items-center gap-1" style={{ color: countdownColor }}>
           {isOverdue && (
@@ -258,15 +258,15 @@ export default function TaskCard({ task, index = 0 }) {
 
       {/* AI Recommendation */}
       {task.ai_recommendation && (
-        <p className="text-xs italic text-beige-dark/70 leading-relaxed mt-2 border-l-2 border-terracotta/30 pl-3">
+        <p className="text-xs italic leading-relaxed mt-2 border-l-2 border-terracotta/30 pl-3" style={{ color: 'var(--fg-secondary)' }}>
           {task.ai_recommendation}
         </p>
       )}
 
       {/* AI Study Plan */}
       {getStudyPlan(task.id) && (
-        <div className="mt-3 p-3 rounded-lg bg-teal-darker/30 border border-beige/5 text-xs text-beige-dark leading-relaxed">
-          <p className="text-[9px] uppercase tracking-widest text-beige/50 mb-1 font-bold">Plan de Acción IA</p>
+        <div className="mt-3 p-3 rounded-lg text-xs leading-relaxed" style={{ background: 'rgba(var(--ink-rgb),.06)', border: '1px solid rgba(var(--ink-rgb),.06)', color: 'var(--fg-secondary)' }}>
+          <p className="text-[9px] uppercase tracking-widest mb-1 font-bold" style={{ color: 'var(--fg-tertiary)' }}>Plan de Acción IA</p>
           {getStudyPlan(task.id)}
         </div>
       )}

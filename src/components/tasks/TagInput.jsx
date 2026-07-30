@@ -24,7 +24,7 @@ export default function TagInput({ tags = [], onChange }) {
 
   return (
     <div>
-      <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
         Etiquetas <span className="normal-case">(opcional, máx. 5)</span>
       </label>
 
@@ -33,7 +33,8 @@ export default function TagInput({ tags = [], onChange }) {
           {tags.map((tag, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs bg-teal-light/30 text-beige border border-beige/10"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs"
+              style={{ background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.12)' }}
             >
               {tag}
               <button type="button" onClick={() => removeTag(i)} className="hover:text-terracotta transition-colors">
@@ -51,7 +52,8 @@ export default function TagInput({ tags = [], onChange }) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Escribe y presiona Enter"
-          className="w-full bg-transparent border-b border-beige/20 py-2 text-sm text-beige placeholder:text-beige-dark outline-none focus:border-terracotta transition-colors"
+          className="w-full bg-transparent border-b py-2 text-sm outline-none focus:border-terracotta transition-colors"
+          style={{ borderColor: 'rgba(var(--ink-rgb),.2)', color: 'var(--fg-primary)' }}
         />
       )}
     </div>

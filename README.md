@@ -1,4 +1,4 @@
-# StudyForge
+# UneedT
 
 **Plataforma de gestión académica personal — tareas, calendario, hábitos, recordatorios y seguimiento académico en una sola app.**
 
@@ -12,7 +12,7 @@
 
 ## Descripción
 
-StudyForge es una aplicación web progresiva (PWA) diseñada para estudiantes que necesitan centralizar su gestión académica. Integra un calendario interactivo, gestión de tareas con arrastrar y soltar, módulo académico, seguimiento de hábitos, recordatorios y clasificación automática de tareas mediante IA (Gemini API).
+UneedT es una aplicación web progresiva (PWA) diseñada para estudiantes que necesitan centralizar su gestión académica. Integra un calendario interactivo, gestión de tareas con arrastrar y soltar, módulo académico, seguimiento de hábitos, recordatorios y clasificación automática de tareas mediante IA (Gemini API).
 
 Construida sobre Supabase para persistencia en tiempo real y sincronización entre dispositivos.
 

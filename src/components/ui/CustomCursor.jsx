@@ -43,7 +43,7 @@ export default function CustomCursor() {
           top: 0,
           width: '24px',
           height: '24px',
-          border: '1.5px solid #1B3A35',
+          border: '1.5px solid rgba(var(--ink-rgb),.4)',
           transition: 'none',
         }}
       />

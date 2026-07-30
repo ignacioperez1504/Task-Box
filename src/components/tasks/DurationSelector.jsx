@@ -9,7 +9,7 @@ const OPTIONS = [
 export default function DurationSelector({ value, onChange }) {
   return (
     <div>
-      <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
         Duración aproximada
       </label>
       <div className="flex gap-2 flex-wrap">
@@ -20,9 +20,9 @@ export default function DurationSelector({ value, onChange }) {
             onClick={() => onChange(opt.value)}
             className="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-250"
             style={{
-              background: value === opt.value ? '#C27A55' : 'rgba(27,58,53,0.4)',
-              color: value === opt.value ? '#0A0A0A' : '#C8C5B8',
-              border: `1px solid ${value === opt.value ? '#C27A55' : 'rgba(200,197,184,0.12)'}`,
+              background: value === opt.value ? '#E8825B' : 'rgba(var(--ink-rgb),.06)',
+              color: value === opt.value ? '#FFF8F4' : 'var(--fg-secondary)',
+              border: `1px solid ${value === opt.value ? '#E8825B' : 'rgba(var(--ink-rgb),.12)'}`,
             }}
           >
             {opt.label}

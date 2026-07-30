@@ -7,7 +7,7 @@ export default function Confetti({ active, onComplete }) {
     container.style.cssText = 'position:fixed;inset:0;z-index:99998;pointer-events:none;overflow:hidden;'
     document.body.appendChild(container)
 
-    const colors = ['#C27A55', '#1B3A35', '#C8C5B8', '#D4956F', '#2E6B5E']
+    const colors = ['#E8825B', '#2B4A63', '#C8C5B8', '#FA9D75', '#4FAE8C']
 
     for (let i = 0; i < 40; i++) {
       const particle = document.createElement('div')

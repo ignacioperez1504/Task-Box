@@ -4,12 +4,15 @@ export default function AIProcessing() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-8">
       {/* Scanner effect */}
-      <div className="relative w-full h-40 rounded-xl overflow-hidden bg-teal-darker/50 border border-beige/10 mb-8">
+      <div
+        className="relative w-full h-40 rounded-xl overflow-hidden mb-8"
+        style={{ background: 'rgba(var(--ink-rgb),.05)', border: '1px solid rgba(var(--ink-rgb),.1)' }}
+      >
         <motion.div
           className="absolute left-0 right-0 h-0.5"
           style={{
-            background: 'linear-gradient(90deg, transparent, #C27A55, transparent)',
-            boxShadow: '0 0 20px rgba(194,122,85,0.5)',
+            background: 'linear-gradient(90deg, transparent, #E8825B, transparent)',
+            boxShadow: '0 0 20px rgba(232,130,91,0.5)',
           }}
           animate={{ top: ['0%', '100%', '0%'] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'linear' }}
@@ -25,7 +28,8 @@ export default function AIProcessing() {
           ].map((text, i) => (
             <motion.p
               key={i}
-              className="text-xs font-mono text-beige/40"
+              className="text-xs font-mono"
+              style={{ color: 'var(--fg-secondary)' }}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.6, duration: 0.3 }}
@@ -38,7 +42,8 @@ export default function AIProcessing() {
 
       {/* Loading text */}
       <motion.p
-        className="font-display text-xl text-beige"
+        className="font-display text-xl"
+        style={{ color: 'var(--fg-primary)' }}
         animate={{ opacity: [1, 0.5, 1] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >

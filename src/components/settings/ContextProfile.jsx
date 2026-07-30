@@ -20,9 +20,9 @@ function ChipInput({ label, hint, items, onChange, max = 6, placeholder }) {
 
   return (
     <div>
-      <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
         {label}{' '}
-        {hint && <span className="normal-case opacity-60">{hint}</span>}
+        {hint && <span className="normal-case opacity-70">{hint}</span>}
       </label>
 
       {items.length > 0 && (
@@ -32,7 +32,8 @@ function ChipInput({ label, hint, items, onChange, max = 6, placeholder }) {
               key={item + i}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-teal-light/25 text-beige border border-teal-light/30"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs"
+              style={{ background: 'rgba(232,130,91,.12)', color: 'var(--fg-primary)', border: '1px solid rgba(232,130,91,.25)' }}
             >
               {item}
               <button
@@ -60,7 +61,8 @@ function ChipInput({ label, hint, items, onChange, max = 6, placeholder }) {
           }}
           onBlur={addItem}
           placeholder={placeholder}
-          className="w-full bg-transparent border-b border-beige/20 py-2 text-sm text-beige placeholder:text-beige-dark/40 outline-none focus:border-terracotta transition-colors"
+          className="w-full bg-transparent border-b py-2 text-sm outline-none focus:border-terracotta transition-colors"
+          style={{ borderColor: 'rgba(var(--ink-rgb),.2)', color: 'var(--fg-primary)' }}
         />
       )}
     </div>
@@ -104,7 +106,7 @@ export default function ContextProfile({ onCancel }) {
 
   return (
     <div className="space-y-5">
-      <p className="text-xs text-beige-dark leading-relaxed">
+      <p className="text-xs leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
         Tu perfil personaliza cómo la IA clasifica y prioriza tus tareas. Cuanto más completo,
         mejores recomendaciones.
       </p>
@@ -121,7 +123,7 @@ export default function ContextProfile({ onCancel }) {
 
       {/* Horario */}
       <div>
-        <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
           Horario de Trabajo
         </label>
         <input
@@ -129,7 +131,8 @@ export default function ContextProfile({ onCancel }) {
           value={workSchedule}
           onChange={(e) => setWorkSchedule(e.target.value)}
           placeholder="Ej: Trabajo 4h diarias en las mañanas"
-          className="w-full bg-teal-darker/60 text-beige px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm placeholder:text-beige-dark/40"
+          className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
+          style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
         />
       </div>
 
@@ -155,7 +158,7 @@ export default function ContextProfile({ onCancel }) {
 
       {/* Estilo de aprendizaje */}
       <div>
-        <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
           Estilo de Aprendizaje
         </label>
         <textarea
@@ -163,7 +166,8 @@ export default function ContextProfile({ onCancel }) {
           onChange={(e) => setStudyStyle(e.target.value)}
           placeholder="Ej: Aprendo mejor con ejemplos prácticos. Necesito repasar conceptos antes de resolver ejercicios."
           rows={3}
-          className="w-full bg-teal-darker/60 text-beige px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm placeholder:text-beige-dark/40 resize-none"
+          className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm resize-none"
+          style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
         />
       </div>
 
@@ -174,17 +178,19 @@ export default function ContextProfile({ onCancel }) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="flex items-center justify-between px-3 py-2 rounded-lg bg-teal-light/10 border border-teal-light/20"
+            className="flex items-center justify-between px-3 py-2 rounded-lg"
+            style={{ background: 'rgba(79,174,140,.12)', border: '1px solid rgba(79,174,140,.25)' }}
           >
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-teal-light animate-pulse" />
-              <span className="text-xs text-beige-dark">
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#4FAE8C' }} />
+              <span className="text-xs" style={{ color: 'var(--fg-secondary)' }}>
                 Perfil activo · la IA usará este contexto
               </span>
             </div>
             <button
               onClick={handleReset}
-              className="text-xs text-beige-dark/50 hover:text-terracotta transition-colors"
+              className="text-xs hover:text-terracotta transition-colors"
+              style={{ color: 'var(--fg-tertiary)' }}
             >
               Limpiar
             </button>
@@ -196,14 +202,16 @@ export default function ContextProfile({ onCancel }) {
       <div className="flex gap-3 pt-1">
         <button
           onClick={handleSave}
-          className="flex-1 bg-terracotta text-black font-medium py-3 rounded-xl hover:bg-terracotta-light transition-colors text-sm"
+          className="flex-1 bg-terracotta font-medium py-3 rounded-xl hover:bg-terracotta-light transition-colors text-sm"
+          style={{ color: '#FFF8F4' }}
         >
           {saved ? '✓ Perfil guardado' : 'Guardar perfil'}
         </button>
         {onCancel && (
           <button
             onClick={onCancel}
-            className="px-5 py-3 text-sm text-beige border border-beige/20 rounded-xl hover:bg-beige/10 transition-colors"
+            className="px-5 py-3 text-sm rounded-xl hover-surface transition-colors"
+            style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
           >
             Cancelar
           </button>

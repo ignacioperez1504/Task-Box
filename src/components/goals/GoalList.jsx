@@ -31,15 +31,16 @@ export default function GoalList() {
   }
 
   return (
-    <div className="mt-4">
+    <div>
       {celebrate && <Confetti active={true} onComplete={() => setCelebrate(false)} />}
 
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs text-beige-dark uppercase tracking-widest">Metas</p>
+        <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', letterSpacing: '.15em', textTransform: 'uppercase' }}>Metas</p>
         {!showForm && (
           <button
             onClick={() => { setEditingGoal(null); setShowForm(true) }}
-            className="text-xs text-terracotta hover:text-terracotta-light transition-colors"
+            className="hover:opacity-80 transition-colors"
+            style={{ fontSize: 11, color: 'var(--color-terracotta)', fontWeight: 600, cursor: 'pointer' }}
           >
             + Nueva
           </button>
@@ -68,7 +69,8 @@ export default function GoalList() {
         <div className="mt-3">
           <button
             onClick={() => setShowCompleted(!showCompleted)}
-            className="text-xs text-beige-dark hover:text-beige transition-colors flex items-center gap-1"
+            className="text-xs transition-colors flex items-center gap-1"
+            style={{ color: 'var(--fg-tertiary)' }}
           >
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
               style={{ transform: showCompleted ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>

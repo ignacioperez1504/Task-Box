@@ -29,8 +29,8 @@ export default function TaskList() {
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-3xl text-beige">Tareas</h2>
-        <span className="text-sm text-beige-dark">{tasks.length} tarea{tasks.length !== 1 ? 's' : ''}</span>
+        <h2 className="font-display text-3xl" style={{ color: 'var(--fg-primary)' }}>Tareas</h2>
+        <span className="text-sm" style={{ color: 'var(--fg-secondary)' }}>{tasks.length} tarea{tasks.length !== 1 ? 's' : ''}</span>
       </div>
 
       <TaskFilters filters={filters} onChange={setFilters} />

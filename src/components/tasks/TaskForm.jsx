@@ -43,7 +43,7 @@ export default function TaskForm({ task = null }) {
 
 
   const isValid = title.trim() && subjectId && dueDate && duration && importance
-  
+
 
   const handleClassify = async () => {
     if (!isValid) return
@@ -128,7 +128,7 @@ export default function TaskForm({ task = null }) {
       }
     }
 
-  
+
     closeRightPanel()
   }
 
@@ -188,7 +188,8 @@ export default function TaskForm({ task = null }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="¿Qué tienes que hacer?"
-          className="w-full bg-transparent text-beige font-display text-2xl border-b-2 border-beige/20 pb-2 outline-none focus:border-terracotta transition-colors duration-250 placeholder:text-beige-dark/50"
+          className="w-full bg-transparent font-display text-2xl border-b-2 pb-2 outline-none focus:border-terracotta transition-colors duration-250"
+          style={{ color: 'var(--fg-primary)', borderColor: 'rgba(var(--ink-rgb),.2)' }}
         />
       </div>
 
@@ -197,14 +198,14 @@ export default function TaskForm({ task = null }) {
 
       {/* Description */}
       <div>
-        <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">Descripción</label>
+        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>Descripción</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe la tarea con el mayor detalle posible. Esto ayuda a la IA a clasificarla mejor."
           rows={3}
-          className="w-full bg-teal-darker/40 text-beige text-sm px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors resize-none"
-          style={{ minHeight: '80px' }}
+          className="w-full text-sm px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors resize-none"
+          style={{ minHeight: '80px', background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
           onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
         />
       </div>
@@ -220,16 +221,17 @@ export default function TaskForm({ task = null }) {
 
       {/* Percentage Weight */}
       <div>
-        <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">¿Cuánto vale esta tarea? (%)</label>
+        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>¿Cuánto vale esta tarea? (%)</label>
         <div className="flex items-center gap-3">
           <input
             type="number"
             value={percentage || ''}
             onChange={(e) => setPercentage(parseFloat(e.target.value) || 0)}
             placeholder="0"
-            className="w-24 bg-teal-darker/40 text-beige text-sm px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors"
+            className="w-24 text-sm px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors"
+            style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
           />
-          <span className="text-xs text-beige-dark">del total de la materia</span>
+          <span className="text-xs" style={{ color: 'var(--fg-secondary)' }}>del total de la materia</span>
         </div>
       </div>
 
@@ -245,7 +247,7 @@ export default function TaskForm({ task = null }) {
         >
           <p className="text-xs text-terracotta font-medium uppercase tracking-wider">Ajuste manual de clasificación</p>
           <div>
-            <label className="text-xs text-beige-dark block mb-1">Prioridad</label>
+            <label className="text-xs block mb-1" style={{ color: 'var(--fg-tertiary)' }}>Prioridad</label>
             <div className="flex gap-2">
               {PRIORITY_OPTIONS.map((p) => (
                 <button
@@ -253,8 +255,8 @@ export default function TaskForm({ task = null }) {
                   onClick={() => setManualPriority(p)}
                   className="px-3 py-1.5 rounded-lg text-xs transition-all duration-250"
                   style={{
-                    background: manualPriority === p ? '#C27A55' : 'rgba(27,58,53,0.4)',
-                    color: manualPriority === p ? '#0A0A0A' : '#C8C5B8',
+                    background: manualPriority === p ? '#E8825B' : 'rgba(var(--ink-rgb),.06)',
+                    color: manualPriority === p ? '#FFF8F4' : 'var(--fg-secondary)',
                   }}
                 >
                   {p}
@@ -263,7 +265,7 @@ export default function TaskForm({ task = null }) {
             </div>
           </div>
           <div>
-            <label className="text-xs text-beige-dark block mb-1">Categoría</label>
+            <label className="text-xs block mb-1" style={{ color: 'var(--fg-tertiary)' }}>Categoría</label>
             <div className="flex gap-2 flex-wrap">
               {CATEGORY_OPTIONS.map((c) => (
                 <button
@@ -271,8 +273,8 @@ export default function TaskForm({ task = null }) {
                   onClick={() => setManualCategory(c)}
                   className="px-3 py-1.5 rounded-lg text-xs transition-all duration-250"
                   style={{
-                    background: manualCategory === c ? '#C27A55' : 'rgba(27,58,53,0.4)',
-                    color: manualCategory === c ? '#0A0A0A' : '#C8C5B8',
+                    background: manualCategory === c ? '#E8825B' : 'rgba(var(--ink-rgb),.06)',
+                    color: manualCategory === c ? '#FFF8F4' : 'var(--fg-secondary)',
                   }}
                 >
                   {c}
@@ -302,7 +304,8 @@ export default function TaskForm({ task = null }) {
             whileTap={{ scale: 0.98 }}
             type="button"
             onClick={handleConfirm}
-            className="flex-1 bg-terracotta text-black font-medium py-3.5 rounded-xl text-sm uppercase tracking-wider hover:bg-terracotta-light transition-colors"
+            className="flex-1 bg-terracotta font-medium py-3.5 rounded-xl text-sm uppercase tracking-wider hover:bg-terracotta-light transition-colors"
+            style={{ color: '#FFF8F4' }}
           >
             Guardar con ajustes
           </motion.button>
@@ -316,9 +319,9 @@ export default function TaskForm({ task = null }) {
               disabled={!isValid}
               className="flex-1 font-medium py-3.5 rounded-xl text-sm uppercase tracking-wider transition-all duration-300"
               style={{
-                backgroundColor: isValid ? '#C27A55' : 'rgba(194,122,85,0.3)',
-                color: isValid ? '#0A0A0A' : '#A8A598',
-                opacity: isValid ? 1 : 0.6,
+                backgroundColor: isValid ? '#E8825B' : 'rgba(232,130,91,0.25)',
+                color: isValid ? '#FFF8F4' : 'var(--fg-tertiary)',
+                opacity: isValid ? 1 : 0.7,
                 animation: isValid ? 'pulse-terracotta 3s ease-in-out infinite' : 'none',
               }}
             >
@@ -328,7 +331,8 @@ export default function TaskForm({ task = null }) {
               <button
                 type="button"
                 onClick={handleSaveWithoutAI}
-                className="px-5 py-3.5 text-sm text-beige border border-beige/20 rounded-xl hover:bg-beige/10 transition-colors"
+                className="px-5 py-3.5 text-sm rounded-xl hover-surface transition-colors"
+                style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
               >
                 Guardar sin IA
               </button>

@@ -1,5 +1,5 @@
 -- ============================================
--- StudyForge — Script SQL completo
+-- UneedT — Script SQL completo
 -- Ejecutar en Supabase SQL Editor
 -- ============================================
 

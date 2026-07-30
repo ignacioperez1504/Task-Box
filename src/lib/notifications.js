@@ -21,7 +21,7 @@ export function sendNotification(title, options = {}) {
   if (Notification.permission !== 'granted') return
 
   const defaultOptions = {
-    icon: '/vite.svg', // Idealmente reemplazar con logo de StudyForge
+    icon: '/vite.svg', // Idealmente reemplazar con logo de UneedT
     badge: '/vite.svg',
     vibrate: [200, 100, 200],
   }

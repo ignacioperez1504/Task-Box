@@ -46,9 +46,9 @@ export default function GoalForm({ onSave, onCancel, initial = null }) {
             onClick={() => setType(t)}
             className="flex-1 py-1.5 text-xs rounded-lg transition-all duration-250"
             style={{
-              background: type === t ? 'rgba(194,122,85,0.3)' : 'rgba(27,58,53,0.3)',
-              color: type === t ? '#C27A55' : '#C8C5B8',
-              border: `1px solid ${type === t ? 'rgba(194,122,85,0.4)' : 'rgba(200,197,184,0.1)'}`,
+              background: type === t ? 'rgba(232,130,91,0.3)' : 'rgba(27,58,53,0.3)',
+              color: type === t ? '#E8825B' : '#C8C5B8',
+              border: `1px solid ${type === t ? 'rgba(232,130,91,0.4)' : 'rgba(200,197,184,0.1)'}`,
             }}
           >
             {t === 'complete_tasks' ? 'Completar tareas' : 'Dedicar horas'}

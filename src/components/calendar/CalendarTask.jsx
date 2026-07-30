@@ -27,10 +27,10 @@ export default function CalendarTask({ task, isOverlay = false }) {
         ${isCompleted ? 'opacity-60 saturate-50' : ''}
       `}
       style={{
-        backgroundColor: color + '20',
-        borderColor: isCritical ? '#8B2E2E' : color + '40',
+        backgroundColor: color + '30',
+        borderColor: isCritical ? 'var(--color-priority-critica)' : color + '55',
         borderLeftWidth: '3px',
-        borderLeftColor: isCritical ? '#8B2E2E' : color,
+        borderLeftColor: isCritical ? 'var(--color-priority-critica)' : color,
       }}
       onClick={(e) => {
         // Prevenir edición si se está arrastrando
@@ -43,7 +43,7 @@ export default function CalendarTask({ task, isOverlay = false }) {
       <div className="flex items-start justify-between gap-1">
         <span
           className="truncate font-medium flex-1"
-          style={{ color: isCompleted ? '#A8A598' : '#C8C5B8', textDecoration: isCompleted ? 'line-through' : 'none' }}
+          style={{ color: isCompleted ? 'var(--fg-tertiary)' : 'var(--fg-primary)', textDecoration: isCompleted ? 'line-through' : 'none' }}
         >
           {task.title}
         </span>
@@ -52,10 +52,10 @@ export default function CalendarTask({ task, isOverlay = false }) {
         )}
       </div>
 
-      <div className="flex items-center gap-2 mt-1 text-[10px] text-beige-dark opacity-80">
+      <div className="flex items-center gap-2 mt-1 text-[10px] opacity-90" style={{ color: 'var(--fg-secondary)' }}>
         <span>{parseFloat(task.duration_hours)}h</span>
         {score > 0 && (
-          <span className="bg-white/10 px-1 rounded text-[9px] font-bold text-terracotta">
+          <span className="px-1 rounded text-[9px] font-bold text-terracotta" style={{ background: 'rgba(var(--ink-rgb),.08)' }}>
             Score: {score}
           </span>
         )}
@@ -63,7 +63,7 @@ export default function CalendarTask({ task, isOverlay = false }) {
 
       {/* Indicador visual de hover para editar */}
       {!isOverlay && !isDragging && (
-        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded pointer-events-none" />
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded pointer-events-none" style={{ background: 'rgba(var(--ink-rgb),.04)' }} />
       )}
     </div>
   )

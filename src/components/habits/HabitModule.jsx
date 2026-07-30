@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitStore } from '../../store/habitStore'
+import GlassCard from '../ui/GlassCard'
 
 export default function HabitModule() {
-  const { 
-    habits, 
-    addHabit, 
-    removeHabit, 
-    toggleHabit, 
-    getHabitStatus, 
-    getStreak, 
+  const {
+    habits,
+    addHabit,
+    removeHabit,
+    toggleHabit,
+    getHabitStatus,
+    getStreak,
     getWeeklyCompletion,
-    getMonthlyCompletion 
+    getMonthlyCompletion
   } = useHabitStore()
 
   const [newHabitTitle, setNewHabitTitle] = useState('')
@@ -38,17 +39,17 @@ export default function HabitModule() {
     <div className="p-8 h-full overflow-y-auto custom-scrollbar">
       <header className="mb-8 flex justify-between items-end">
         <div>
-          <h2 className="font-display text-4xl text-beige mb-2">Rastreador de Hábitos</h2>
-          <p className="text-beige-dark">Construye constancia y disciplina diaria.</p>
+          <h2 className="font-display text-4xl mb-2" style={{ color: 'var(--fg-primary)' }}>Rastreador de Hábitos</h2>
+          <p style={{ color: 'var(--fg-secondary)' }}>Construye constancia y disciplina diaria.</p>
         </div>
         <div className="flex gap-4">
           <div className="text-right">
-            <p className="text-[10px] text-beige-dark uppercase tracking-widest mb-1">Semanal</p>
+            <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--fg-tertiary)' }}>Semanal</p>
             <p className="text-2xl font-display text-terracotta">{weeklyPercentage}%</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-beige-dark uppercase tracking-widest mb-1">Mensual</p>
-            <p className="text-2xl font-display text-beige">{monthlyPercentage}%</p>
+            <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--fg-tertiary)' }}>Mensual</p>
+            <p className="text-2xl font-display" style={{ color: 'var(--fg-primary)' }}>{monthlyPercentage}%</p>
           </div>
         </div>
       </header>
@@ -56,22 +57,24 @@ export default function HabitModule() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Habit List */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="glass-dark p-6 rounded-3xl border border-beige/5">
+          <GlassCard radius="lg" padding={24}>
             <div className="flex justify-between items-center mb-6">
-              <div className="flex bg-teal-darker/40 p-1 rounded-xl border border-beige/10">
+              <div className="flex p-1 rounded-xl" style={{ background: 'rgba(var(--ink-rgb),.06)', border: '1px solid rgba(var(--ink-rgb),.1)' }}>
                 {last7Days.map(date => {
                   const isSelected = selectedDate === date
                   const d = new Date(date + 'T12:00:00')
                   const dayName = d.toLocaleDateString('es-ES', { weekday: 'short' })
                   const dayNum = d.getDate()
-                  
+
                   return (
                     <button
                       key={date}
                       onClick={() => setSelectedDate(date)}
-                      className={`px-3 py-2 rounded-lg transition-all duration-300 flex flex-col items-center min-w-[50px] ${
-                        isSelected ? 'bg-terracotta text-black' : 'text-beige-dark hover:text-beige'
-                      }`}
+                      className="px-3 py-2 rounded-lg transition-all duration-300 flex flex-col items-center min-w-[50px]"
+                      style={isSelected
+                        ? { background: 'var(--color-terracotta)', color: 'var(--fg-on-accent)' }
+                        : { color: 'var(--fg-secondary)' }
+                      }
                     >
                       <span className="text-[10px] uppercase font-bold">{dayName}</span>
                       <span className="text-sm font-display">{dayNum}</span>
@@ -79,7 +82,7 @@ export default function HabitModule() {
                   )
                 })}
               </div>
-              <p className="text-xs text-beige-dark font-medium">
+              <p className="text-xs font-medium" style={{ color: 'var(--fg-secondary)' }}>
                 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-ES', { dateStyle: 'long' })}
               </p>
             </div>
@@ -87,7 +90,7 @@ export default function HabitModule() {
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
                 {habits.length === 0 ? (
-                  <div className="py-12 text-center text-beige-dark opacity-50 italic">
+                  <div className="py-12 text-center opacity-60 italic" style={{ color: 'var(--fg-secondary)' }}>
                     No tienes hábitos registrados aún.
                   </div>
                 ) : (
@@ -98,23 +101,27 @@ export default function HabitModule() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="group flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all"
+                      className="group flex items-center justify-between p-4 rounded-2xl transition-all"
+                      style={{ background: 'rgba(var(--ink-rgb),.03)', border: '1px solid rgba(var(--ink-rgb),.07)' }}
                     >
                       <div className="flex items-center gap-4">
                         <button
                           onClick={() => toggleHabit(habit.id, selectedDate)}
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2 ${
-                            getHabitStatus(habit.id, selectedDate)
-                              ? 'bg-terracotta border-terracotta text-black'
-                              : 'bg-transparent border-beige/20 text-transparent hover:border-terracotta/50'
-                          }`}
+                          className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2"
+                          style={getHabitStatus(habit.id, selectedDate)
+                            ? { background: 'var(--color-terracotta)', borderColor: 'var(--color-terracotta)', color: 'var(--fg-on-accent)' }
+                            : { background: 'transparent', borderColor: 'rgba(var(--ink-rgb),.2)', color: 'transparent' }
+                          }
                         >
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         </button>
                         <div>
-                          <h4 className={`font-medium transition-all ${getHabitStatus(habit.id, selectedDate) ? 'text-beige/50 line-through' : 'text-beige'}`}>
+                          <h4
+                            className={`font-medium transition-all ${getHabitStatus(habit.id, selectedDate) ? 'line-through' : ''}`}
+                            style={{ color: getHabitStatus(habit.id, selectedDate) ? 'var(--fg-tertiary)' : 'var(--fg-primary)' }}
+                          >
                             {habit.title}
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
@@ -129,7 +136,8 @@ export default function HabitModule() {
                       </div>
                       <button
                         onClick={() => removeHabit(habit.id)}
-                        className="opacity-0 group-hover:opacity-100 p-2 text-beige-dark hover:text-priority-critica transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-2 hover:text-priority-critica transition-all"
+                        style={{ color: 'var(--fg-tertiary)' }}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -140,42 +148,44 @@ export default function HabitModule() {
                 )}
               </AnimatePresence>
             </div>
-          </div>
+          </GlassCard>
         </div>
 
         {/* Right: Add Habit */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="glass-dark p-6 rounded-3xl border border-beige/5">
-            <h3 className="text-lg text-beige font-display mb-4">Nuevo Hábito</h3>
+          <GlassCard radius="lg" padding={24}>
+            <h3 className="text-lg font-display mb-4" style={{ color: 'var(--fg-primary)' }}>Nuevo Hábito</h3>
             <form onSubmit={handleAddHabit} className="space-y-4">
               <div>
-                <label className="text-xs text-beige-dark uppercase tracking-widest block mb-2">¿Qué quieres lograr?</label>
+                <label className="text-xs uppercase tracking-widest block mb-2" style={{ color: 'var(--fg-tertiary)' }}>¿Qué quieres lograr?</label>
                 <input
                   type="text"
                   value={newHabitTitle}
                   onChange={(e) => setNewHabitTitle(e.target.value)}
                   placeholder="Ej: Meditar 10 min"
-                  className="w-full bg-teal-darker/40 text-beige px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm"
+                  className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
+                  style={{ background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
                 />
               </div>
               <button
                 type="submit"
                 disabled={!newHabitTitle.trim()}
-                className="w-full bg-terracotta text-black font-bold py-3 rounded-xl hover:bg-terracotta-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
+                className="w-full bg-terracotta font-bold py-3 rounded-xl hover:bg-terracotta-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
+                style={{ color: 'var(--fg-on-accent)' }}
               >
                 Agregar Hábito
               </button>
             </form>
-          </div>
+          </GlassCard>
 
-          <div className="glass-dark p-6 rounded-3xl border border-beige/5">
-            <h3 className="text-xs text-beige-dark uppercase tracking-widest mb-4">Consejo de Productividad</h3>
-            <div className="p-4 bg-terracotta/5 rounded-2xl border border-terracotta/20">
-              <p className="text-sm text-beige leading-relaxed italic">
+          <GlassCard radius="lg" padding={24}>
+            <h3 className="text-xs uppercase tracking-widest mb-4" style={{ color: 'var(--fg-tertiary)' }}>Consejo de Productividad</h3>
+            <div className="p-4 rounded-2xl border border-terracotta/20" style={{ background: 'rgba(232,130,91,.08)' }}>
+              <p className="text-sm leading-relaxed italic" style={{ color: 'var(--fg-secondary)' }}>
                 "La constancia es más importante que la intensidad. Es mejor hacer 5 minutos cada día que 2 horas una vez a la semana."
               </p>
             </div>
-          </div>
+          </GlassCard>
         </div>
       </div>
     </div>

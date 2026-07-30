@@ -2,13 +2,11 @@ import { useState, useEffect } from 'react'
 import { useUIStore } from '../../store/uiStore'
 import { useTaskStore } from '../../store/taskStore'
 import ProgramSelector from '../programs/ProgramSelector'
-import WeeklyProgress from '../stats/WeeklyProgress'
-import CriticalCounter from '../stats/CriticalCounter'
-import PendingTime from '../stats/PendingTime'
-import WeeklyHeatmap from '../stats/WeeklyHeatmap'
-import ProductivityStreak from '../stats/ProductivityStreak'
-import SubjectDistribution from '../stats/SubjectDistribution'
 import GoalList from '../goals/GoalList'
+import SubjectDistribution from '../stats/SubjectDistribution'
+import GlassCard from '../ui/GlassCard'
+import ProgressRing from '../ui/ProgressRing'
+import ThemeToggle from '../ui/ThemeToggle'
 
 const NAV_ITEMS = [
   {
@@ -65,9 +63,43 @@ const NAV_ITEMS = [
   },
 ]
 
+const DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+
+// Hex literals (not var()) so the alpha-suffix trick below is reliable
+// regardless of color-mix() browser support.
+function loadColor(n) {
+  if (!n) return '#3F6180'
+  if (n === 1) return '#4A90E2'
+  if (n <= 3) return '#4FAE8C'
+  if (n <= 5) return '#E8825B'
+  return '#E15252'
+}
+
+function NavRow({ icon, label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+        padding: '10px 14px', borderRadius: 'var(--ds-radius-md)', cursor: 'pointer',
+        background: active ? 'var(--glass-bg-strong)' : 'var(--nav-inactive-bg)',
+        border: '1px solid var(--glass-border)',
+        backdropFilter: 'blur(var(--blur-glass))', WebkitBackdropFilter: 'blur(var(--blur-glass))', transform: 'translateZ(0)',
+        boxShadow: active ? 'var(--shadow-card), var(--shadow-inset-highlight)' : 'var(--shadow-inset-highlight)',
+        fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: active ? 600 : 500,
+        color: active ? 'var(--fg-primary)' : 'var(--fg-secondary)', transition: 'all var(--ds-duration-base) var(--ds-ease-out)',
+      }}
+    >
+      <span style={{ display: 'flex', color: active ? 'var(--color-terracotta)' : 'var(--fg-tertiary)' }}>{icon}</span>
+      {label}
+    </button>
+  )
+}
+
 export default function Sidebar() {
   const { activeSection, setActiveSection, openSettings } = useUIStore()
   const {
+    tasks,
     getCompletedThisWeek,
     getTasksThisWeek,
     getCriticalPendingCount,
@@ -143,20 +175,43 @@ export default function Sidebar() {
     }
   }
 
+  const completed = getCompletedThisWeek()
+  const totalThisWeek = Math.max(getTasksThisWeek(), 1)
+  const weeklyPct = Math.round((completed / totalThisWeek) * 100)
+  const criticalCount = getCriticalPendingCount()
+  const pendingHours = getTotalPendingHours()
+  const streak = getProductivityStreak()
+
+  const today = new Date()
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    const dateStr = d.toISOString().split('T')[0]
+    const count = tasks.filter((t) => t.due_date === dateStr).length
+    return { label: DAY_LABELS[i], dateStr, count }
+  })
+
   return (
     <aside
-      className="w-[280px] min-w-[280px] h-screen flex flex-col overflow-y-auto border-r border-beige/8 gap-4"
+      className="w-[280px] min-w-[280px] h-screen flex flex-col overflow-y-auto"
       style={{
-        background: 'linear-gradient(180deg, #152E2A 0%, #0D1E1B 100%)',
+        gap: 28,
+        borderRight: '1px solid var(--glass-border)',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        transform: 'translateZ(0)',
       }}
     >
       {/* Logo */}
-      <div className="px-6 pt-6 pb-4">
-        <h1 className="font-display text-3xl font-bold text-beige tracking-tight">
-          Study<span className="text-terracotta">Forge</span>
+      <div style={{ padding: '32px 24px 0' }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 44, color: 'var(--fg-primary)', letterSpacing: '0.1em' }}>
+          <span style={{ color: 'var(--color-terracotta)' }}>U</span>need<span style={{ color: 'var(--color-terracotta)' }}>T</span>
         </h1>
-        <p className="text-[10px] text-beige-dark mt-0.5 tracking-[0.2em] uppercase">
-          Academic Task Manager
+        <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', marginTop: 4, letterSpacing: '.2em', textTransform: 'uppercase' }}>
+          <span style={{ color: '#71767C', fontStyle: 'italic', fontSize: 12 }}>Academic Task Manager</span>
         </p>
       </div>
 
@@ -164,53 +219,80 @@ export default function Sidebar() {
       <ProgramSelector />
 
       {/* Navegación */}
-      <nav className="px-3 mb-4">
+      <nav style={{ padding: '0 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {NAV_ITEMS.map((item) => (
-          <button
+          <NavRow
             key={item.id}
+            icon={item.icon}
+            label={item.label}
+            active={activeSection === item.id}
             onClick={() => setActiveSection(item.id)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-250 mb-1"
-            style={{
-              background: activeSection === item.id ? 'rgba(194,122,85,0.2)' : 'transparent',
-              color: activeSection === item.id ? '#fff' : '#C8C5B8',
-              borderLeft: activeSection === item.id ? '3px solid #C27A55' : '3px solid transparent',
-            }}
-          >
-            {item.icon}
-            <span className="font-medium">{item.label}</span>
-          </button>
+          />
         ))}
       </nav>
 
-      <div className="h-px mx-6 bg-beige/10" />
+      <div className="h-px mx-6" style={{ background: 'var(--divider)' }} />
 
       {/* Estadísticas */}
-      <div className="px-5 py-4 flex-1 space-y-5">
-        <p className="text-[10px] text-beige-dark uppercase tracking-[0.2em]">Estadísticas</p>
+      <div style={{ padding: '0 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <GlassCard radius="md" padding={16} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <ProgressRing percent={weeklyPct} size={72} stroke={5} />
+          <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.12em', lineHeight: 1.5 }}>
+            Completado<br />esta semana
+          </p>
+        </GlassCard>
 
-        <WeeklyProgress
-          completed={getCompletedThisWeek()}
-          total={Math.max(getTasksThisWeek(), 1)}
-        />
+        <GlassCard radius="md" padding={16} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 22, color: criticalCount > 0 ? 'var(--color-priority-critica)' : 'var(--fg-primary)' }}>{criticalCount}</p>
+            <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Críticas</p>
+          </div>
+          <div>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 22, color: 'var(--fg-primary)' }}>{pendingHours.toFixed(1)}h</p>
+            <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Pendientes</p>
+          </div>
+          <div>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 22, color: 'var(--fg-primary)' }}>{streak}</p>
+            <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Racha</p>
+          </div>
+        </GlassCard>
 
-        <CriticalCounter count={getCriticalPendingCount()} />
-        <PendingTime hours={getTotalPendingHours()} />
-        <WeeklyHeatmap />
-        <ProductivityStreak days={getProductivityStreak()} />
-        <SubjectDistribution />
+        <GlassCard radius="md" padding={16}>
+          <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 10 }}>Carga semanal</p>
+          <div style={{ display: 'flex', gap: 5 }}>
+            {weekDays.map((day) => (
+              <div
+                key={day.dateStr}
+                title={`${day.count} tarea${day.count !== 1 ? 's' : ''}`}
+                style={{
+                  width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 600, color: 'var(--fg-primary)',
+                  background: loadColor(day.count) + '61',
+                }}
+              >
+                {day.label}
+              </div>
+            ))}
+          </div>
+        </GlassCard>
 
-        <div className="h-px bg-beige/10" />
+        <GlassCard radius="md" padding={16}>
+          <SubjectDistribution />
+        </GlassCard>
 
-        <GoalList />
+        <GlassCard radius="md" padding={16}>
+          <GoalList />
+        </GlassCard>
       </div>
 
       {/* Config & Fullscreen buttons */}
-      <div className="px-5 py-4 border-t border-beige/8 mt-auto flex flex-col gap-3">
+      <div className="flex flex-col gap-3" style={{ padding: '18px 24px', borderTop: '1px solid var(--divider-soft)' }}>
         {isSupported && (
           <button
             onClick={toggleFullscreen}
             title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
-            className="flex items-center gap-2 text-sm text-beige-dark hover:text-beige transition-colors duration-250 cursor-pointer"
+            className="flex items-center gap-2 text-sm transition-colors duration-250 cursor-pointer"
+            style={{ color: 'var(--fg-secondary)', fontFamily: 'var(--font-body)' }}
           >
             {isFullscreen ? (
               <svg
@@ -224,7 +306,7 @@ export default function Sidebar() {
                 strokeLinejoin="round"
                 style={{
                   filter: 'drop-shadow(0 0 4px rgba(57, 211, 83, 0.6))',
-                  color: '#39D353',
+                  color: '#2E9E4B',
                 }}
               >
                 <polyline points="4 14 10 14 10 20" />
@@ -254,7 +336,8 @@ export default function Sidebar() {
         )}
         <button
           onClick={openSettings}
-          className="flex items-center gap-2 text-sm text-beige-dark hover:text-beige transition-colors duration-250 cursor-pointer"
+          className="flex items-center gap-2 text-sm transition-colors duration-250 cursor-pointer"
+          style={{ color: 'var(--fg-secondary)', fontFamily: 'var(--font-body)' }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <circle cx="12" cy="12" r="3" />
@@ -262,6 +345,7 @@ export default function Sidebar() {
           </svg>
           Configuración
         </button>
+        <ThemeToggle />
       </div>
     </aside>
   )

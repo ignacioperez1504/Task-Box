@@ -39,7 +39,7 @@ export default function SettingsModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/50"
+            className="fixed inset-0 z-[60] bg-black/40"
             onClick={closeSettings}
           />
 
@@ -50,23 +50,30 @@ export default function SettingsModal() {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[61]
-                       w-[500px] glass-dark rounded-2xl flex flex-col max-h-[88vh]"
+                       w-[500px] rounded-2xl flex flex-col max-h-[88vh]"
+            style={{
+              background: 'var(--glass-bg-strong)',
+              border: '1px solid var(--glass-border)',
+              backdropFilter: 'blur(var(--blur-glass-strong))',
+              WebkitBackdropFilter: 'blur(var(--blur-glass-strong))',
+              boxShadow: 'var(--shadow-elevated)',
+            }}
           >
             {/* ── Header ────────────────────────────────────── */}
             <div className="px-8 pt-8 pb-5 shrink-0">
-              <h2 className="font-display text-2xl text-beige mb-5">Configuración</h2>
+              <h2 className="font-display text-2xl mb-5" style={{ color: 'var(--fg-primary)' }}>Configuración</h2>
 
               {/* Tab switcher */}
-              <div className="flex gap-1 bg-teal-darker/60 rounded-xl p-1">
+              <div className="flex gap-1 rounded-xl p-1" style={{ background: 'rgba(var(--ink-rgb),.06)' }}>
                 {TABS.map(({ id, label }) => (
                   <button
                     key={id}
                     onClick={() => setActiveTab(id)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === id
-                        ? 'bg-terracotta text-black'
-                        : 'text-beige-dark hover:text-beige'
-                    }`}
+                    className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors"
+                    style={activeTab === id
+                      ? { background: 'var(--color-terracotta)', color: '#FFF8F4' }
+                      : { color: 'var(--fg-secondary)' }
+                    }
                   >
                     {label}
                   </button>
@@ -87,7 +94,7 @@ export default function SettingsModal() {
                     className="space-y-5"
                   >
                     <div>
-                      <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+                      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
                         API Key de Gemini
                       </label>
                       <input
@@ -95,44 +102,49 @@ export default function SettingsModal() {
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
                         placeholder="AIza..."
-                        className="w-full bg-teal-darker/60 text-beige px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm"
+                        className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
+                        style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+                      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
                         Endpoint Base
                       </label>
                       <input
                         type="text"
                         value={endpoint}
                         onChange={(e) => setEndpoint(e.target.value)}
-                        className="w-full bg-teal-darker/60 text-beige px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm"
+                        className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
+                        style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs text-beige-dark uppercase tracking-wider block mb-2">
+                      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
                         Modelo
                       </label>
                       <input
                         type="text"
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
-                        className="w-full bg-teal-darker/60 text-beige px-4 py-3 rounded-xl border border-beige/15 outline-none focus:border-terracotta transition-colors text-sm"
+                        className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
+                        style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
                       />
                     </div>
 
                     <div className="flex gap-3 pt-3">
                       <button
                         onClick={handleSaveApi}
-                        className="flex-1 bg-terracotta text-black font-medium py-3 rounded-xl hover:bg-terracotta-light transition-colors text-sm"
+                        className="flex-1 bg-terracotta font-medium py-3 rounded-xl hover:bg-terracotta-light transition-colors text-sm"
+                        style={{ color: '#FFF8F4' }}
                       >
                         {saved ? '✓ Guardado' : 'Guardar configuración'}
                       </button>
                       <button
                         onClick={closeSettings}
-                        className="px-6 py-3 text-sm text-beige border border-beige/20 rounded-xl hover:bg-beige/10 transition-colors"
+                        className="px-6 py-3 text-sm rounded-xl hover-surface transition-colors"
+                        style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
                       >
                         Cancelar
                       </button>

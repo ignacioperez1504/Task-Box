@@ -2,10 +2,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 
 const PRIORITIES = [
-  { label: 'Crítica', color: '#8B2E2E' },
-  { label: 'Alta', color: '#C27A55' },
-  { label: 'Media', color: '#C9A96E' },
-  { label: 'Baja', color: '#2E6B5E' },
+  { label: 'Crítica', color: '#E15252' },
+  { label: 'Alta', color: '#E8825B' },
+  { label: 'Media', color: '#E8C468' },
+  { label: 'Baja', color: '#4FAE8C' },
 ]
 
 const STATUS_OPTIONS = [
@@ -50,15 +50,15 @@ export default function TaskFilters({ filters, onChange }) {
   return (
     <div className="mb-6 space-y-3">
       {/* Status tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-teal-darker/50">
+      <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(var(--ink-rgb),.08)' }}>
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             onClick={() => onChange({ ...filters, status: opt.value })}
             className="flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-250"
             style={{
-              background: filters.status === opt.value ? 'rgba(194,122,85,0.25)' : 'transparent',
-              color: filters.status === opt.value ? '#C27A55' : '#A8A598',
+              background: filters.status === opt.value ? 'rgba(232,130,91,0.22)' : 'transparent',
+              color: filters.status === opt.value ? 'var(--color-terracotta)' : 'var(--fg-tertiary)',
             }}
           >
             {opt.label}
@@ -76,9 +76,9 @@ export default function TaskFilters({ filters, onChange }) {
               onClick={() => togglePriority(p.label)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-250"
               style={{
-                background: active ? p.color + '30' : 'rgba(27,58,53,0.3)',
-                color: active ? p.color : '#A8A598',
-                border: `1px solid ${active ? p.color + '60' : 'rgba(200,197,184,0.08)'}`,
+                background: active ? p.color + '30' : 'var(--glass-bg)',
+                color: active ? p.color : 'var(--fg-tertiary)',
+                border: `1px solid ${active ? p.color + '60' : 'var(--glass-border-soft)'}`,
               }}
             >
               {p.label}
@@ -88,21 +88,33 @@ export default function TaskFilters({ filters, onChange }) {
 
         {/* Subject dropdown */}
         <div className="relative ml-auto group">
-          <button className="px-3 py-1.5 rounded-lg text-xs text-beige-dark border border-beige/10 hover:border-beige/25 transition-colors flex items-center gap-1">
+          <button
+            className="px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1"
+            style={{ color: 'var(--fg-secondary)', border: '1px solid var(--glass-border)' }}
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Materias
           </button>
-          <div className="absolute right-0 top-full mt-1 w-52 glass rounded-xl overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+          <div
+            className="absolute right-0 top-full mt-1 w-52 rounded-xl overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+            style={{
+              background: 'var(--glass-bg-strong)',
+              border: '1px solid var(--glass-border)',
+              backdropFilter: 'blur(var(--blur-glass))',
+              WebkitBackdropFilter: 'blur(var(--blur-glass))',
+              boxShadow: 'var(--shadow-elevated)',
+            }}
+          >
             {subjects.map((s) => {
               const active = (filters.subjects || []).includes(s.id)
               return (
                 <button
                   key={s.id}
                   onClick={() => toggleSubject(s.id)}
-                  className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover:bg-beige/10 transition-colors"
-                  style={{ color: active ? '#C27A55' : '#C8C5B8' }}
+                  className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover-surface transition-colors"
+                  style={{ color: active ? '#E8825B' : 'var(--fg-secondary)' }}
                 >
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color_hex }} />
                   {s.name}
@@ -124,16 +136,16 @@ export default function TaskFilters({ filters, onChange }) {
             className="flex flex-wrap gap-1.5"
           >
             {filters.status !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-teal-light/20 text-beige">
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs" style={{ background: 'rgba(232,130,91,0.18)', color: 'var(--color-terracotta)' }}>
                 {filters.status === 'pending' ? 'Pendientes' : 'Completadas'}
-                <button onClick={() => removeFilter('status')} className="hover:text-terracotta">×</button>
+                <button onClick={() => removeFilter('status')} className="hover:opacity-70">×</button>
               </span>
             )}
             {(filters.priorities || []).map((p) => (
               <span key={p} className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs"
-                style={{ backgroundColor: (PRIORITIES.find((x) => x.label === p)?.color || '#C8C5B8') + '20', color: PRIORITIES.find((x) => x.label === p)?.color }}>
+                style={{ backgroundColor: (PRIORITIES.find((x) => x.label === p)?.color || '#94A3B8') + '25', color: PRIORITIES.find((x) => x.label === p)?.color }}>
                 {p}
-                <button onClick={() => removeFilter('priority', p)} className="hover:text-white">×</button>
+                <button onClick={() => removeFilter('priority', p)} className="hover:opacity-70">×</button>
               </span>
             ))}
             {(filters.subjects || []).map((id) => {
@@ -141,9 +153,9 @@ export default function TaskFilters({ filters, onChange }) {
               if (!s) return null
               return (
                 <span key={id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs"
-                  style={{ backgroundColor: s.color_hex + '20', color: s.color_hex }}>
+                  style={{ backgroundColor: s.color_hex + '25', color: s.color_hex }}>
                   {s.name}
-                  <button onClick={() => removeFilter('subject', id)} className="hover:text-white">×</button>
+                  <button onClick={() => removeFilter('subject', id)} className="hover:opacity-70">×</button>
                 </span>
               )
             })}

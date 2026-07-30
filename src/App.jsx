@@ -77,7 +77,7 @@ export default function App() {
 
   if (!isReady) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#0D1E1B]">
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#060B12]">
         <motion.div
           animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
@@ -86,17 +86,17 @@ export default function App() {
           <div className="w-8 h-8 rounded-full bg-terracotta" />
         </motion.div>
         <h1 className="font-display text-4xl text-beige tracking-tight mb-2">
-          Study<span className="text-terracotta">Forge</span>
+          <span className="text-terracotta">U</span>need<span className="text-terracotta">T</span>
         </h1>
         <p className="text-sm text-beige-dark font-mono animate-pulse">
-          Inicializando forja...
+          Inicializando...
         </p>
       </div>
     )
   }
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden text-beige bg-[#0D1E1B]">
+    <div className="h-screen w-screen flex overflow-hidden text-beige" style={{ background: 'var(--bg-app)' }}>
       <CustomCursor />
       {/* Modals & Overlays */}
       <DeleteModal />

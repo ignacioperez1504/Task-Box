@@ -7,6 +7,9 @@ import { getDailyRecommendation, hasApiKey } from '../../lib/aiService'
 import CalendarDay from './CalendarDay'
 import CalendarTask from './CalendarTask'
 import { CardSkeleton } from '../ui/LoadingSkeleton'
+import GlassCard from '../ui/GlassCard'
+
+const GRID_LINE = '#959da4'
 
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 const DAYS_ES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
@@ -51,7 +54,7 @@ function AIRecommendationPanel({ tasks, reminders }) {
       className="mb-6 p-5 glass-dark border border-terracotta/20 rounded-2xl relative overflow-hidden group min-h-[100px]"
     >
       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C27A55" strokeWidth="1.5">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E8825B" strokeWidth="1.5">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
       </div>
@@ -188,14 +191,14 @@ export default function Calendar() {
     return (
       <div className="p-6 h-full flex flex-col">
         <div className="flex justify-between mb-6">
-          <div className="w-48 h-10 bg-beige/10 rounded-xl animate-shimmer" />
-          <div className="w-32 h-10 bg-beige/10 rounded-xl animate-shimmer" />
+          <div className="w-48 h-10 rounded-xl animate-shimmer" style={{ background: 'rgba(var(--ink-rgb),.08)' }} />
+          <div className="w-32 h-10 rounded-xl animate-shimmer" style={{ background: 'rgba(var(--ink-rgb),.08)' }} />
         </div>
-        <div className="grid grid-cols-7 gap-px flex-1 bg-beige/5 rounded-2xl overflow-hidden border border-beige/10">
+        <div className="grid grid-cols-7 gap-px flex-1 rounded-3xl overflow-hidden" style={{ background: 'rgba(var(--ink-rgb),.08)', border: '1px solid var(--glass-border)' }}>
           {Array.from({ length: 35 }).map((_, i) => (
-            <div key={i} className="bg-teal-darker/50 p-2 border-r border-b border-beige/10">
-              <div className="w-6 h-6 rounded-full bg-beige/10 animate-shimmer mb-2" />
-              {i % 3 === 0 && <div className="w-full h-12 bg-beige/5 rounded animate-shimmer" />}
+            <div key={i} className="p-2" style={{ background: 'var(--glass-bg)', borderRight: `1px solid ${GRID_LINE}`, borderBottom: `1px solid ${GRID_LINE}` }}>
+              <div className="w-6 h-6 rounded-full animate-shimmer mb-2" style={{ background: 'rgba(var(--ink-rgb),.1)' }} />
+              {i % 3 === 0 && <div className="w-full h-12 rounded animate-shimmer" style={{ background: 'rgba(var(--ink-rgb),.06)' }} />}
             </div>
           ))}
         </div>
@@ -204,25 +207,26 @@ export default function Calendar() {
   }
 
   return (
-    <div className="h-full flex flex-col pt-10 px-6 pb-6 overflow-y-auto custom-scrollbar">
+    <div className="h-full flex flex-col overflow-y-auto custom-scrollbar" style={{ padding: '40px 32px 32px' }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <h2 className="font-display text-4xl text-beige min-w-[200px]">
-            {MONTHS_ES[viewMonth]} <span className="text-terracotta">{viewYear}</span>
-          </h2>
-          
-          <div className="flex gap-1 glass rounded-xl p-1">
-            <button onClick={prevMonth} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-beige/10 transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8C5B8" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <button onClick={goToToday} className="px-4 h-10 rounded-lg text-sm text-beige font-medium hover:bg-beige/10 transition-colors">
-              Hoy
-            </button>
-            <button onClick={nextMonth} className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-beige/10 transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8C5B8" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
+      <div className="flex items-center shrink-0" style={{ gap: 20, marginBottom: 20 }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 36, color: 'var(--fg-primary)', minWidth: 220 }}>
+          {MONTHS_ES[viewMonth]} <span style={{ color: 'var(--color-terracotta)' }}>{viewYear}</span>
+        </h2>
+
+        <div
+          className="flex rounded-full"
+          style={{ gap: 4, padding: 4, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(var(--blur-glass))', WebkitBackdropFilter: 'blur(var(--blur-glass))' }}
+        >
+          <button onClick={prevMonth} className="w-10 h-10 rounded-full flex items-center justify-center hover-surface transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button onClick={goToToday} className="h-10 rounded-full hover-surface transition-colors" style={{ width: 'auto', padding: '0 18px', fontSize: 13, color: 'var(--fg-primary)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>
+            Hoy
+          </button>
+          <button onClick={nextMonth} className="w-10 h-10 rounded-full flex items-center justify-center hover-surface transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
       </div>
 
@@ -236,19 +240,19 @@ export default function Calendar() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-beige/10 shadow-lg relative bg-teal-darker/30 mt-4 min-h-[600px]">
-          
+        <GlassCard radius="lg" padding={0} className="flex-1 flex flex-col overflow-hidden relative min-h-[560px]">
+
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-beige/10 bg-black/20 shrink-0">
+          <div className="grid grid-cols-7 shrink-0" style={{ borderBottom: `1px solid ${GRID_LINE}`, background: 'rgba(var(--ink-rgb),0.15)' }}>
             {DAYS_ES.map(day => (
-              <div key={day} className="py-3 text-center text-xs text-beige-dark font-medium uppercase tracking-widest border-r border-beige/10">
+              <div key={day} className="text-center font-semibold" style={{ padding: '12px 0', fontSize: 10, color: 'var(--fg-secondary)', letterSpacing: '.15em', textTransform: 'uppercase' }}>
                 {day.substring(0, 3)}
               </div>
             ))}
           </div>
-          
+
           {/* Calendar body */}
-          <div className="flex-1 grid grid-cols-7 auto-rows-fr mt-4">
+          <div className="flex-1 grid grid-cols-7 auto-rows-fr">
             {calendarDays.map(({ date, isCurrentMonth }, i) => {
               const dateStr = date.toISOString().split('T')[0]
               const dayTasks = tasks.filter(t => t.due_date === dateStr)
@@ -271,7 +275,7 @@ export default function Calendar() {
               )
             })}
           </div>
-        </div>
+        </GlassCard>
 
         {/* Drag Overlay */}
         <DragOverlay dropAnimation={{ duration: 250, easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)' }}>

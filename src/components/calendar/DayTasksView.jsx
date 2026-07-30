@@ -32,24 +32,26 @@ export default function DayTasksView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => setActiveSection('calendar')}
-            className="w-10 h-10 rounded-xl glass flex items-center justify-center hover:bg-beige/10 transition-colors"
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover-surface transition-colors"
+            style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(var(--blur-glass))', WebkitBackdropFilter: 'blur(var(--blur-glass))' }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8C5B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
           </button>
           <div>
-            <h2 className="font-display text-3xl text-beige">{formattedDate}</h2>
-            <p className="text-sm text-beige-dark">{tasks.length} tarea{tasks.length !== 1 ? 's' : ''} programada{tasks.length !== 1 ? 's' : ''}</p>
+            <h2 className="font-display text-3xl" style={{ color: 'var(--fg-primary)' }}>{formattedDate}</h2>
+            <p className="text-sm" style={{ color: 'var(--fg-secondary)' }}>{tasks.length} tarea{tasks.length !== 1 ? 's' : ''} programada{tasks.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
-        
+
         <button
           onClick={openCreatePanel}
-          className="bg-terracotta text-black px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-terracotta-light transition-colors shadow-elevated"
+          className="bg-terracotta px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-terracotta-light transition-colors shadow-elevated"
+          style={{ color: 'var(--fg-on-accent)' }}
         >
           + Nueva tarea este día
         </button>

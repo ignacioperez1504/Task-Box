@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studyforge-v1'
+const CACHE_NAME = 'uneedt-v1'
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()
@@ -24,12 +24,12 @@ self.addEventListener('push', (event) => {
     }
 
     event.waitUntil(
-      self.registration.showNotification(data.title || 'StudyForge', options)
+      self.registration.showNotification(data.title || 'UneedT', options)
     )
   } catch (err) {
     // Si el payload no es JSON, mostrarlo como texto
     event.waitUntil(
-      self.registration.showNotification('StudyForge', {
+      self.registration.showNotification('UneedT', {
         body: event.data.text(),
         icon: '/vite.svg',
       })

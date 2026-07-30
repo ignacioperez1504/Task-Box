@@ -22,14 +22,14 @@ export default function SubjectDistribution() {
 
   return (
     <div>
-      <p className="text-xs text-beige-dark mb-3">Por materia</p>
+      <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 10 }}>Por materia</p>
       <div className="space-y-2">
         {distribution.map((s) => (
           <div key={s.id} className="flex items-center gap-2">
-            <span className="text-xs text-beige truncate w-16" title={s.name}>
+            <span className="text-xs truncate w-16" style={{ color: 'var(--fg-secondary)' }} title={s.name}>
               {s.name.length > 8 ? s.name.slice(0, 8) + '…' : s.name}
             </span>
-            <div className="flex-1 h-2 bg-teal-darker rounded-full overflow-hidden">
+            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(var(--ink-rgb),.12)' }}>
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{
@@ -38,7 +38,7 @@ export default function SubjectDistribution() {
                 }}
               />
             </div>
-            <span className="text-xs text-beige-dark w-4 text-right">{s.count}</span>
+            <span className="text-xs w-4 text-right" style={{ color: 'var(--fg-tertiary)' }}>{s.count}</span>
           </div>
         ))}
       </div>

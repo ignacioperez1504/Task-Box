@@ -32,8 +32,17 @@ export default function Tooltip({ children, content, className = '' }) {
             transition={{ duration: 0.15 }}
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[100] pointer-events-none"
           >
-            <div className="glass px-3 py-2 rounded-lg text-sm text-beige whitespace-nowrap max-w-[280px] text-center"
-              style={{ whiteSpace: 'pre-wrap' }}
+            <div
+              className="px-3 py-2 rounded-lg text-sm whitespace-nowrap max-w-[280px] text-center"
+              style={{
+                whiteSpace: 'pre-wrap',
+                background: 'var(--glass-bg-strong)',
+                border: '1px solid var(--glass-border)',
+                backdropFilter: 'blur(var(--blur-glass))',
+                WebkitBackdropFilter: 'blur(var(--blur-glass))',
+                boxShadow: 'var(--shadow-elevated)',
+                color: 'var(--fg-primary)',
+              }}
             >
               {content}
             </div>
