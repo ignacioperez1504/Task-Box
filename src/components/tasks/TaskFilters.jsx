@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
+import Dropdown, { DropdownItem } from '../ui/Dropdown'
+import SegmentedTabs from '../ui/SegmentedTabs'
 
 const PRIORITIES = [
   { label: 'Crítica', color: '#E15252' },
@@ -13,6 +15,12 @@ const STATUS_OPTIONS = [
   { label: 'Completadas', value: 'completed' },
   { label: 'Todas', value: 'all' },
 ]
+
+const FILTER_ICON = (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </svg>
+)
 
 export default function TaskFilters({ filters, onChange }) {
   const { subjects } = useSubjectStore()
@@ -50,21 +58,11 @@ export default function TaskFilters({ filters, onChange }) {
   return (
     <div className="mb-6 space-y-3">
       {/* Status tabs */}
-      <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(var(--ink-rgb),.08)' }}>
-        {STATUS_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => onChange({ ...filters, status: opt.value })}
-            className="flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-250"
-            style={{
-              background: filters.status === opt.value ? 'rgba(232,130,91,0.22)' : 'transparent',
-              color: filters.status === opt.value ? 'var(--color-terracotta)' : 'var(--fg-tertiary)',
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      <SegmentedTabs
+        options={STATUS_OPTIONS}
+        value={filters.status}
+        onChange={(status) => onChange({ ...filters, status })}
+      />
 
       {/* Priority toggles */}
       <div className="flex gap-2">
@@ -74,11 +72,13 @@ export default function TaskFilters({ filters, onChange }) {
             <button
               key={p.label}
               onClick={() => togglePriority(p.label)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-250"
+              className="px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
               style={{
+                borderRadius: 'var(--ds-radius-sm)',
                 background: active ? p.color + '30' : 'var(--glass-bg)',
                 color: active ? p.color : 'var(--fg-tertiary)',
                 border: `1px solid ${active ? p.color + '60' : 'var(--glass-border-soft)'}`,
+                transitionDuration: 'var(--ds-duration-base)',
               }}
             >
               {p.label}
@@ -87,43 +87,38 @@ export default function TaskFilters({ filters, onChange }) {
         })}
 
         {/* Subject dropdown */}
-        <div className="relative ml-auto group">
-          <button
-            className="px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1"
-            style={{ color: 'var(--fg-secondary)', border: '1px solid var(--glass-border)' }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-            </svg>
-            Materias
-          </button>
-          <div
-            className="absolute right-0 top-full mt-1 w-52 rounded-xl overflow-hidden z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
-            style={{
-              background: 'var(--glass-bg-strong)',
-              border: '1px solid var(--glass-border)',
-              backdropFilter: 'blur(var(--blur-glass))',
-              WebkitBackdropFilter: 'blur(var(--blur-glass))',
-              boxShadow: 'var(--shadow-elevated)',
-            }}
-          >
-            {subjects.map((s) => {
+        <Dropdown
+          className="ml-auto"
+          variant="compact"
+          align="right"
+          matchTriggerWidth={false}
+          panelWidth={208}
+          trigger={<>{FILTER_ICON} Materias</>}
+          triggerStyle={{ color: 'var(--fg-secondary)' }}
+          panelClassName="max-h-64 overflow-y-auto custom-scrollbar py-1"
+        >
+          {subjects.length === 0 ? (
+            <p className="px-4 py-3 text-xs text-center italic" style={{ color: 'var(--fg-tertiary)' }}>
+              No hay materias creadas
+            </p>
+          ) : (
+            subjects.map((s) => {
               const active = (filters.subjects || []).includes(s.id)
               return (
-                <button
+                <DropdownItem
                   key={s.id}
+                  active={active}
                   onClick={() => toggleSubject(s.id)}
-                  className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 hover-surface transition-colors"
-                  style={{ color: active ? '#E8825B' : 'var(--fg-secondary)' }}
+                  style={active ? { color: 'var(--color-terracotta)' } : undefined}
                 >
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color_hex }} />
-                  {s.name}
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color_hex }} />
+                  <span className="truncate">{s.name}</span>
                   {active && <span className="ml-auto">✓</span>}
-                </button>
+                </DropdownItem>
               )
-            })}
-          </div>
-        </div>
+            })
+          )}
+        </Dropdown>
       </div>
 
       {/* Active filter chips */}

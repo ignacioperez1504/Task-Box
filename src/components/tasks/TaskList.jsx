@@ -5,6 +5,7 @@ import TaskCard from './TaskCard'
 import TaskFilters from './TaskFilters'
 import EmptyState from '../ui/EmptyState'
 import { CardSkeleton } from '../ui/LoadingSkeleton'
+import PageHeader from '../ui/PageHeader'
 
 export default function TaskList() {
   const { loading, getFilteredTasks } = useTaskStore()
@@ -18,7 +19,7 @@ export default function TaskList() {
 
   if (loading) {
     return (
-      <div className="space-y-4 p-6">
+      <div className="space-y-4 p-8">
         <CardSkeleton />
         <CardSkeleton />
         <CardSkeleton />
@@ -27,11 +28,16 @@ export default function TaskList() {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-3xl" style={{ color: 'var(--fg-primary)' }}>Tareas</h2>
-        <span className="text-sm" style={{ color: 'var(--fg-secondary)' }}>{tasks.length} tarea{tasks.length !== 1 ? 's' : ''}</span>
-      </div>
+    <div className="h-full overflow-y-auto custom-scrollbar p-8">
+      <PageHeader
+        title="Tareas"
+        subtitle="Todo lo que tenés pendiente, ordenado por prioridad."
+        actions={
+          <span className="text-sm" style={{ color: 'var(--fg-secondary)' }}>
+            {tasks.length} tarea{tasks.length !== 1 ? 's' : ''}
+          </span>
+        }
+      />
 
       <TaskFilters filters={filters} onChange={setFilters} />
 

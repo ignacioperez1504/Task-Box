@@ -5,8 +5,8 @@ export default function AIProcessing() {
     <div className="flex flex-col items-center justify-center py-16 px-8">
       {/* Scanner effect */}
       <div
-        className="relative w-full h-40 rounded-xl overflow-hidden mb-8"
-        style={{ background: 'rgba(var(--ink-rgb),.05)', border: '1px solid rgba(var(--ink-rgb),.1)' }}
+        className="relative w-full h-40 overflow-hidden mb-8"
+        style={{ background: 'rgba(var(--ink-rgb),.05)', border: '1px solid rgba(var(--ink-rgb),.1)', borderRadius: 'var(--ds-radius-md)' }}
       >
         <motion.div
           className="absolute left-0 right-0 h-0.5"
@@ -28,7 +28,7 @@ export default function AIProcessing() {
           ].map((text, i) => (
             <motion.p
               key={i}
-              className="text-xs font-mono"
+              className="ds-technical text-xs"
               style={{ color: 'var(--fg-secondary)' }}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}

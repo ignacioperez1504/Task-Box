@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useReminderStore } from '../../store/reminderStore'
 import GlassCard from '../ui/GlassCard'
+import PageHeader from '../ui/PageHeader'
+import Field from '../ui/Field'
+import Button from '../ui/Button'
 
 export default function ReminderModule() {
   const { reminders, addReminder, removeReminder, toggleReminder } = useReminderStore()
@@ -26,10 +29,10 @@ export default function ReminderModule() {
 
   return (
     <div className="p-8 h-full overflow-y-auto custom-scrollbar">
-      <header className="mb-8">
-        <h2 className="font-display text-4xl mb-2" style={{ color: 'var(--fg-primary)' }}>Recordatorios</h2>
-        <p style={{ color: 'var(--fg-secondary)' }}>Pendientes personales y eventos rápidos.</p>
-      </header>
+      <PageHeader
+        title="Recordatorios"
+        subtitle="Pendientes personales y eventos rápidos."
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Form */}
@@ -37,35 +40,22 @@ export default function ReminderModule() {
           <GlassCard radius="lg" padding={24} className="sticky top-0">
             <h3 className="text-lg font-display mb-6" style={{ color: 'var(--fg-primary)' }}>Nuevo Recordatorio</h3>
             <form onSubmit={handleAdd} className="space-y-4">
-              <div>
-                <label className="text-xs uppercase tracking-widest block mb-2" style={{ color: 'var(--fg-tertiary)' }}>¿Qué recordar?</label>
-                <input
-                  type="text"
-                  value={newReminderTitle}
-                  onChange={(e) => setNewReminderTitle(e.target.value)}
-                  placeholder="Ej: Llamar a mamá"
-                  className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-                  style={{ background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-                />
-              </div>
-              <div>
-                <label className="text-xs uppercase tracking-widest block mb-2" style={{ color: 'var(--fg-tertiary)' }}>Fecha</label>
-                <input
-                  type="date"
-                  value={newReminderDate}
-                  onChange={(e) => setNewReminderDate(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-                  style={{ background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={!newReminderTitle.trim()}
-                className="w-full bg-terracotta font-bold py-3 rounded-xl hover:bg-terracotta-light transition-colors disabled:opacity-50 text-sm uppercase tracking-wider"
-                style={{ color: 'var(--fg-on-accent)' }}
-              >
+              <Field
+                label="¿Qué recordar?"
+                type="text"
+                value={newReminderTitle}
+                onChange={(e) => setNewReminderTitle(e.target.value)}
+                placeholder="Ej: Llamar a mamá"
+              />
+              <Field
+                label="Fecha"
+                type="date"
+                value={newReminderDate}
+                onChange={(e) => setNewReminderDate(e.target.value)}
+              />
+              <Button type="submit" fullWidth disabled={!newReminderTitle.trim()}>
                 Guardar
-              </button>
+              </Button>
             </form>
           </GlassCard>
         </div>
@@ -79,7 +69,7 @@ export default function ReminderModule() {
           ) : (
             sortedDates.map(date => (
               <div key={date}>
-                <h4 className="text-xs text-terracotta font-bold uppercase tracking-widest mb-4 flex items-center gap-3">
+                <h4 className="ds-label !mb-4 flex items-center gap-3" style={{ color: 'var(--color-terracotta)' }}>
                   {new Date(date + 'T12:00:00').toLocaleDateString('es-ES', { dateStyle: 'full' })}
                   <div className="h-px flex-1 bg-terracotta/20" />
                 </h4>
@@ -92,8 +82,8 @@ export default function ReminderModule() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="group flex items-center justify-between p-4 rounded-2xl transition-all"
-                        style={{ background: 'rgba(var(--ink-rgb),.03)', border: '1px solid rgba(var(--ink-rgb),.07)' }}
+                        className="group flex items-center justify-between p-4 transition-all"
+                        style={{ background: 'rgba(var(--ink-rgb),.03)', border: '1px solid rgba(var(--ink-rgb),.07)', borderRadius: 'var(--ds-radius-md)' }}
                       >
                         <div className="flex items-center gap-4">
                           <button

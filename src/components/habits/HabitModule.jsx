@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useHabitStore } from '../../store/habitStore'
 import GlassCard from '../ui/GlassCard'
+import PageHeader from '../ui/PageHeader'
+import Field from '../ui/Field'
+import Button from '../ui/Button'
 
 export default function HabitModule() {
   const {
@@ -37,22 +40,22 @@ export default function HabitModule() {
 
   return (
     <div className="p-8 h-full overflow-y-auto custom-scrollbar">
-      <header className="mb-8 flex justify-between items-end">
-        <div>
-          <h2 className="font-display text-4xl mb-2" style={{ color: 'var(--fg-primary)' }}>Rastreador de Hábitos</h2>
-          <p style={{ color: 'var(--fg-secondary)' }}>Construye constancia y disciplina diaria.</p>
-        </div>
-        <div className="flex gap-4">
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--fg-tertiary)' }}>Semanal</p>
-            <p className="text-2xl font-display text-terracotta">{weeklyPercentage}%</p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--fg-tertiary)' }}>Mensual</p>
-            <p className="text-2xl font-display" style={{ color: 'var(--fg-primary)' }}>{monthlyPercentage}%</p>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Rastreador de Hábitos"
+        subtitle="Construye constancia y disciplina diaria."
+        actions={
+          <>
+            <div className="text-right">
+              <p className="ds-label !mb-1">Semanal</p>
+              <p className="text-2xl font-display text-terracotta">{weeklyPercentage}%</p>
+            </div>
+            <div className="text-right">
+              <p className="ds-label !mb-1">Mensual</p>
+              <p className="text-2xl font-display" style={{ color: 'var(--fg-primary)' }}>{monthlyPercentage}%</p>
+            </div>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Habit List */}
@@ -101,8 +104,8 @@ export default function HabitModule() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="group flex items-center justify-between p-4 rounded-2xl transition-all"
-                      style={{ background: 'rgba(var(--ink-rgb),.03)', border: '1px solid rgba(var(--ink-rgb),.07)' }}
+                      className="group flex items-center justify-between p-4 transition-all"
+                      style={{ background: 'rgba(var(--ink-rgb),.03)', border: '1px solid rgba(var(--ink-rgb),.07)', borderRadius: 'var(--ds-radius-md)' }}
                     >
                       <div className="flex items-center gap-4">
                         <button
@@ -156,31 +159,22 @@ export default function HabitModule() {
           <GlassCard radius="lg" padding={24}>
             <h3 className="text-lg font-display mb-4" style={{ color: 'var(--fg-primary)' }}>Nuevo Hábito</h3>
             <form onSubmit={handleAddHabit} className="space-y-4">
-              <div>
-                <label className="text-xs uppercase tracking-widest block mb-2" style={{ color: 'var(--fg-tertiary)' }}>¿Qué quieres lograr?</label>
-                <input
-                  type="text"
-                  value={newHabitTitle}
-                  onChange={(e) => setNewHabitTitle(e.target.value)}
-                  placeholder="Ej: Meditar 10 min"
-                  className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-                  style={{ background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={!newHabitTitle.trim()}
-                className="w-full bg-terracotta font-bold py-3 rounded-xl hover:bg-terracotta-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
-                style={{ color: 'var(--fg-on-accent)' }}
-              >
+              <Field
+                label="¿Qué quieres lograr?"
+                type="text"
+                value={newHabitTitle}
+                onChange={(e) => setNewHabitTitle(e.target.value)}
+                placeholder="Ej: Meditar 10 min"
+              />
+              <Button type="submit" fullWidth disabled={!newHabitTitle.trim()}>
                 Agregar Hábito
-              </button>
+              </Button>
             </form>
           </GlassCard>
 
           <GlassCard radius="lg" padding={24}>
-            <h3 className="text-xs uppercase tracking-widest mb-4" style={{ color: 'var(--fg-tertiary)' }}>Consejo de Productividad</h3>
-            <div className="p-4 rounded-2xl border border-terracotta/20" style={{ background: 'rgba(232,130,91,.08)' }}>
+            <h3 className="ds-label !mb-4">Consejo de Productividad</h3>
+            <div className="p-4" style={{ background: 'rgba(232,130,91,.08)', border: '1px solid rgba(232,130,91,.2)', borderRadius: 'var(--ds-radius-md)' }}>
               <p className="text-sm leading-relaxed italic" style={{ color: 'var(--fg-secondary)' }}>
                 "La constancia es más importante que la intensidad. Es mejor hacer 5 minutos cada día que 2 horas una vez a la semana."
               </p>

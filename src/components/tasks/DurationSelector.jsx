@@ -9,7 +9,7 @@ const OPTIONS = [
 export default function DurationSelector({ value, onChange }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
+      <label className="ds-label mb-2">
         Duración aproximada
       </label>
       <div className="flex gap-2 flex-wrap">

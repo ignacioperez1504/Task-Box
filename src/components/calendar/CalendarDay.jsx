@@ -4,7 +4,7 @@ import { useUIStore } from '../../store/uiStore'
 import CalendarTask from './CalendarTask'
 import CalendarReminder from './CalendarReminder'
 
-const GRID_LINE = '#959da4'
+const GRID_LINE = 'var(--grid-line)'
 
 // Hex literals (not var()) so the alpha-suffix trick below is reliable
 // regardless of color-mix() browser support.

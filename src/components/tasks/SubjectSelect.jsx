@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useSubjectStore } from '../../store/subjectStore'
+import Dropdown, { DropdownItem } from '../ui/Dropdown'
+import { Input } from '../ui/Field'
 
 export default function SubjectSelect({ value, onChange }) {
   const { subjects, createSubject } = useSubjectStore()
-  const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const ref = useRef(null)
 
   const selected = subjects.find((s) => s.id === value)
   const filtered = subjects.filter((s) =>
@@ -15,82 +15,73 @@ export default function SubjectSelect({ value, onChange }) {
     (s) => s.name.toLowerCase() === search.toLowerCase()
   )
 
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
-
-  const handleCreate = async () => {
-    const newSubject = await createSubject(search.trim())
-    if (newSubject) {
-      onChange(newSubject.id)
-      setSearch('')
-      setOpen(false)
-    }
-  }
-
   return (
-    <div ref={ref} className="relative">
-      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-        Materia
-      </label>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full text-left px-4 py-3 rounded-xl text-sm transition-colors focus:border-terracotta flex items-center gap-2"
-        style={{ border: '1px solid rgba(var(--ink-rgb),.15)', background: 'rgba(var(--ink-rgb),.05)', color: selected ? 'var(--fg-primary)' : 'var(--fg-tertiary)' }}
-      >
-        {selected && (
-          <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: selected.color_hex }} />
-        )}
-        {selected?.name || 'Selecciona una materia'}
-      </button>
-
-      {open && (
-        <div
-          className="absolute top-full left-0 right-0 mt-1 z-30 rounded-xl overflow-hidden max-h-60 overflow-y-auto"
-          style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(var(--blur-glass))', WebkitBackdropFilter: 'blur(var(--blur-glass))', boxShadow: 'var(--shadow-card), var(--shadow-inset-highlight)' }}
-        >
+    <Dropdown
+      label="Materia"
+      placeholder={!selected}
+      trigger={
+        <>
+          {selected && (
+            <span
+              className="w-3 h-3 rounded-full inline-block shrink-0"
+              style={{ backgroundColor: selected.color_hex }}
+            />
+          )}
+          <span className="truncate">{selected?.name || 'Selecciona una materia'}</span>
+        </>
+      }
+      panelClassName="max-h-60 overflow-y-auto custom-scrollbar"
+    >
+      {({ close }) => (
+        <>
           <div className="p-2">
-            <input
+            <Input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar o crear materia..."
-              className="w-full text-sm px-3 py-2 rounded-lg outline-none transition-colors focus:border-terracotta"
-              style={{ background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.12)' }}
+              className="!px-3 !py-2"
               autoFocus
             />
           </div>
 
           {filtered.map((s) => (
-            <button
+            <DropdownItem
               key={s.id}
-              type="button"
-              onClick={() => { onChange(s.id); setSearch(''); setOpen(false) }}
-              className="w-full text-left px-4 py-2.5 text-sm hover:bg-terracotta/15 transition-colors flex items-center gap-2"
-              style={{ color: 'var(--fg-primary)' }}
+              active={s.id === value}
+              className="!text-sm !py-2.5"
+              onClick={() => { onChange(s.id); setSearch(''); close() }}
             >
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: s.color_hex }} />
-              {s.name}
-            </button>
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: s.color_hex }} />
+              <span className="truncate">{s.name}</span>
+              {s.id === value && <span className="ml-auto">✓</span>}
+            </DropdownItem>
           ))}
 
           {canCreate && (
-            <button
-              type="button"
-              onClick={handleCreate}
-              className="w-full text-left px-4 py-2.5 text-sm text-terracotta hover:bg-terracotta/15 transition-colors"
-              style={{ borderTop: '1px solid rgba(var(--ink-rgb),.1)' }}
+            <DropdownItem
+              className="!text-sm !py-2.5"
+              style={{ color: 'var(--color-terracotta)', borderTop: '1px solid rgba(var(--ink-rgb),.1)' }}
+              onClick={async () => {
+                const newSubject = await createSubject(search.trim())
+                if (newSubject) {
+                  onChange(newSubject.id)
+                  setSearch('')
+                  close()
+                }
+              }}
             >
               + Crear "{search.trim()}"
-            </button>
+            </DropdownItem>
           )}
-        </div>
+
+          {filtered.length === 0 && !canCreate && (
+            <p className="px-4 py-3 text-xs text-center italic" style={{ color: 'var(--fg-tertiary)' }}>
+              No hay materias que coincidan
+            </p>
+          )}
+        </>
       )}
-    </div>
+    </Dropdown>
   )
 }

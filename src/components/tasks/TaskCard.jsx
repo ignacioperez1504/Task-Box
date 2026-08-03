@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 import { useUIStore } from '../../store/uiStore'
 import { useTaskStore } from '../../store/taskStore'
@@ -83,10 +83,11 @@ export default function TaskCard({ task, index = 0 }) {
       exit={{ opacity: 0, scale: 0.85 }}
       transition={{ duration: 0.3, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className={`group rounded-3xl p-5 relative transition-all duration-300
+      className={`group p-5 relative transition-all duration-300
         ${isInProgress ? 'border-r-2 shadow-[0_0_15px_rgba(232,196,104,0.15)]' : ''}
       `}
       style={{
+        borderRadius: 'var(--ds-radius-lg)',
         background: 'var(--glass-bg)',
         border: '1px solid var(--glass-border)',
         borderRight: isInProgress ? '2px solid rgba(232,196,104,.5)' : undefined,
@@ -179,7 +180,7 @@ export default function TaskCard({ task, index = 0 }) {
       {/* Progress Slider */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase font-medium" style={{ letterSpacing: '.15em', color: 'var(--fg-tertiary)' }}>Progreso</span>
+          <span className="ds-label !mb-0">Progreso</span>
           <span className="text-[10px] font-bold" style={{ color: 'var(--fg-primary)' }}>{localProgress}%</span>
         </div>
         <div className="relative h-1.5 w-full rounded-full overflow-hidden group/slider" style={{ background: 'rgba(var(--ink-rgb),.25)' }}>
@@ -215,7 +216,7 @@ export default function TaskCard({ task, index = 0 }) {
           <Badge color={PRIORITY_COLORS[task.ai_priority] || '#94A3B8'}>
             {task.ai_priority}
             {score > 0 && (
-              <span className="bg-white/10 px-1.5 rounded font-bold text-[10px]">
+              <span className="px-1.5 rounded font-bold text-[10px]" style={{ background: 'rgba(var(--ink-rgb),.12)' }}>
                 {score}
               </span>
             )}
@@ -265,21 +266,20 @@ export default function TaskCard({ task, index = 0 }) {
 
       {/* AI Study Plan */}
       {getStudyPlan(task.id) && (
-        <div className="mt-3 p-3 rounded-lg text-xs leading-relaxed" style={{ background: 'rgba(var(--ink-rgb),.06)', border: '1px solid rgba(var(--ink-rgb),.06)', color: 'var(--fg-secondary)' }}>
-          <p className="text-[9px] uppercase tracking-widest mb-1 font-bold" style={{ color: 'var(--fg-tertiary)' }}>Plan de Acción IA</p>
+        <div className="mt-3 p-3 text-xs leading-relaxed" style={{ background: 'rgba(var(--ink-rgb),.06)', border: '1px solid rgba(var(--ink-rgb),.06)', borderRadius: 'var(--ds-radius-sm)', color: 'var(--fg-secondary)' }}>
+          <p className="ds-label mb-1">Plan de Acción IA</p>
           {getStudyPlan(task.id)}
         </div>
       )}
 
-      {/* Prompt Modal Overlay */}
-      <AnimatePresence>
-        {isPromptModalOpen && (
-          <PromptModal
-            task={task}
-            onClose={() => setIsPromptModalOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {/* Prompt Modal Overlay — se monta solo al abrirse, para no disparar la
+          generación del prompt en cada tarjeta de la lista. */}
+      {isPromptModalOpen && (
+        <PromptModal
+          task={task}
+          onClose={() => setIsPromptModalOpen(false)}
+        />
+      )}
     </motion.div>
   )
 }

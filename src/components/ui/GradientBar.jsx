@@ -21,10 +21,14 @@ export default function GradientBar({ value = 0, max = 100, height = 6, showMark
             width: height + 6,
             height: height + 6,
             borderRadius: '50%',
-            background: '#fff',
-            border: '2px solid var(--navy-900)',
+            // El marcador se apoya siempre sobre el gradiente saturado, no sobre
+            // el fondo de la app, así que su relleno y su anillo son constantes
+            // en ambos temas (el anillo antes era --navy-900, que desaparecía
+            // sobre el fondo oscuro).
+            background: '#FFFFFF',
+            border: '2px solid rgba(6,11,18,.55)',
             transform: 'translate(-50%,-50%)',
-            boxShadow: '0 2px 6px rgba(0,0,0,.4)',
+            boxShadow: '0 2px 6px rgba(0,0,0,.35)',
             transition: 'left var(--ds-duration-slow) var(--ds-ease-out)',
           }}
         />

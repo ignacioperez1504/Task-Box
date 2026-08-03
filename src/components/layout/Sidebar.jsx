@@ -210,8 +210,8 @@ export default function Sidebar() {
         <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 44, color: 'var(--fg-primary)', letterSpacing: '0.1em' }}>
           <span style={{ color: 'var(--color-terracotta)' }}>U</span>need<span style={{ color: 'var(--color-terracotta)' }}>T</span>
         </h1>
-        <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', marginTop: 4, letterSpacing: '.2em', textTransform: 'uppercase' }}>
-          <span style={{ color: '#71767C', fontStyle: 'italic', fontSize: 12 }}>Academic Task Manager</span>
+        <p style={{ marginTop: 4 }}>
+          <span style={{ color: 'var(--fg-tertiary)', fontStyle: 'italic', fontSize: 12 }}>Academic Task Manager</span>
         </p>
       </div>
 
@@ -237,7 +237,7 @@ export default function Sidebar() {
       <div style={{ padding: '0 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <GlassCard radius="md" padding={16} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <ProgressRing percent={weeklyPct} size={72} stroke={5} />
-          <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.12em', lineHeight: 1.5 }}>
+          <p className="ds-label" style={{ lineHeight: 1.5 }}>
             Completado<br />esta semana
           </p>
         </GlassCard>
@@ -245,20 +245,20 @@ export default function Sidebar() {
         <GlassCard radius="md" padding={16} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
           <div>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 22, color: criticalCount > 0 ? 'var(--color-priority-critica)' : 'var(--fg-primary)' }}>{criticalCount}</p>
-            <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Críticas</p>
+            <p className="ds-label">Críticas</p>
           </div>
           <div>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 22, color: 'var(--fg-primary)' }}>{pendingHours.toFixed(1)}h</p>
-            <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Pendientes</p>
+            <p className="ds-label">Pendientes</p>
           </div>
           <div>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 22, color: 'var(--fg-primary)' }}>{streak}</p>
-            <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em' }}>Racha</p>
+            <p className="ds-label">Racha</p>
           </div>
         </GlassCard>
 
         <GlassCard radius="md" padding={16}>
-          <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 10 }}>Carga semanal</p>
+          <p className="ds-label" style={{ marginBottom: 10 }}>Carga semanal</p>
           <div style={{ display: 'flex', gap: 5 }}>
             {weekDays.map((day) => (
               <div
@@ -305,8 +305,8 @@ export default function Sidebar() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 style={{
-                  filter: 'drop-shadow(0 0 4px rgba(57, 211, 83, 0.6))',
-                  color: '#2E9E4B',
+                  filter: 'drop-shadow(0 0 4px rgba(79, 174, 140, 0.6))',
+                  color: 'var(--color-priority-baja)',
                 }}
               >
                 <polyline points="4 14 10 14 10 20" />

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 import { useAcademicStore } from '../../store/academicStore'
 import GlassCard from '../ui/GlassCard'
+import Accordion from '../ui/Accordion'
+import PageHeader from '../ui/PageHeader'
 
 export default function AcademicModule() {
   const { subjects } = useSubjectStore()
@@ -16,7 +18,6 @@ export default function AcademicModule() {
 
   const [selectedSubjectId, setSelectedSubjectId] = useState(subjects[0]?.id || '')
   const [targetInput, setTargetInput] = useState('3.0')
-  const [isProjectionOpen, setIsProjectionOpen] = useState(false)
 
   // Synchronize selectedSubjectId when the subjects list changes due to program switching
   useEffect(() => {
@@ -109,15 +110,28 @@ export default function AcademicModule() {
 
   const totalPercentage = academicData.evaluations.reduce((sum, ev) => sum + ev.percentage, 0)
 
-  const inkLabel = { fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '0.15em' }
-  const inputStyle = { background: 'rgba(var(--ink-rgb),.06)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }
+  // Mismos valores que la utilidad .ds-label; se conserva como objeto para los
+  // pocos <label> que necesitan estilo inline.
+  const inkLabel = {
+    fontSize: 'var(--text-label)',
+    fontWeight: 600,
+    color: 'var(--fg-tertiary)',
+    textTransform: 'uppercase',
+    letterSpacing: 'var(--tracking-label)',
+  }
+  const inputStyle = {
+    background: 'rgba(var(--ink-rgb),.06)',
+    color: 'var(--fg-primary)',
+    border: '1px solid rgba(var(--ink-rgb),.15)',
+    borderRadius: 'var(--ds-radius-control)',
+  }
 
   return (
     <div className="p-8 h-full overflow-y-auto custom-scrollbar">
-      <header className="mb-8">
-        <h2 className="font-display text-4xl mb-2" style={{ color: 'var(--fg-primary)' }}>Notas Académicas</h2>
-        <p style={{ color: 'var(--fg-secondary)' }}>Gestiona tus materias, créditos y estructura de evaluación.</p>
-      </header>
+      <PageHeader
+        title="Notas Académicas"
+        subtitle="Gestiona tus materias, créditos y estructura de evaluación."
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Subject List & Basic Info */}
@@ -166,12 +180,12 @@ export default function AcademicModule() {
                 <div className="pt-4" style={{ borderTop: '1px solid rgba(var(--ink-rgb),.08)' }}>
                   <p className="mb-4" style={inkLabel}>Resumen Actual</p>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl" style={{ background: 'rgba(var(--ink-rgb),.04)', border: '1px solid rgba(var(--ink-rgb),.06)' }}>
-                      <p className="text-[10px] uppercase mb-1" style={{ color: 'var(--fg-tertiary)' }}>Promedio</p>
+                    <div className="p-4" style={{ background: 'rgba(var(--ink-rgb),.04)', border: '1px solid rgba(var(--ink-rgb),.06)', borderRadius: 'var(--ds-radius-md)' }}>
+                      <p className="ds-label !mb-1">Promedio</p>
                       <p className="text-2xl font-display text-terracotta">{stats.average.toFixed(2)}</p>
                     </div>
-                    <div className="p-4 rounded-xl" style={{ background: 'rgba(var(--ink-rgb),.04)', border: '1px solid rgba(var(--ink-rgb),.06)' }}>
-                      <p className="text-[10px] uppercase mb-1" style={{ color: 'var(--fg-tertiary)' }}>Evaluado</p>
+                    <div className="p-4" style={{ background: 'rgba(var(--ink-rgb),.04)', border: '1px solid rgba(var(--ink-rgb),.06)', borderRadius: 'var(--ds-radius-md)' }}>
+                      <p className="ds-label !mb-1">Evaluado</p>
                       <p className="text-2xl font-display" style={{ color: 'var(--fg-primary)' }}>{stats.percentageEvaluated}%</p>
                     </div>
                   </div>
@@ -202,7 +216,7 @@ export default function AcademicModule() {
                 <div
                   className="px-4 py-1.5 rounded-full text-xs font-medium"
                   style={totalPercentage === 100
-                    ? { background: 'rgba(79,174,140,.2)', color: '#3d8a70' }
+                    ? { background: 'rgba(79,174,140,.2)', color: 'var(--color-priority-baja)' }
                     : { background: 'rgba(232,130,91,.2)', color: 'var(--color-terracotta)' }
                   }
                 >
@@ -211,42 +225,20 @@ export default function AcademicModule() {
               </div>
 
               {/* Projection Calculator Card */}
-              <div className="mb-6 rounded-2xl overflow-hidden" style={{ background: 'rgba(var(--ink-rgb),.02)', border: '1px solid rgba(var(--ink-rgb),.1)', backdropFilter: 'blur(12px)' }}>
-                <button
-                  onClick={() => setIsProjectionOpen(!isProjectionOpen)}
-                  className="w-full px-6 py-4 flex items-center justify-between transition-colors focus:outline-none"
-                  style={{ color: 'var(--fg-primary)' }}
-                >
-                  <div className="flex items-center gap-3">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-terracotta">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <line x1="9" y1="9" x2="15" y2="9" />
-                      <line x1="9" y1="13" x2="15" y2="13" />
-                      <line x1="9" y1="17" x2="15" y2="17" />
-                      <line x1="10" y1="9" x2="10" y2="17" />
-                    </svg>
-                    <span className="font-semibold text-sm tracking-wide">Calculadora de Proyección de Notas</span>
-                  </div>
-                  <motion.div
-                    animate={{ rotate: isProjectionOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </motion.div>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isProjectionOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                      style={{ borderTop: '1px solid rgba(var(--ink-rgb),.08)', background: 'rgba(var(--ink-rgb),.015)' }}
-                    >
-                      <div className="p-6 space-y-6">
+              <Accordion
+                className="mb-6"
+                title="Calculadora de Proyección de Notas"
+                icon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="9" y1="9" x2="15" y2="9" />
+                    <line x1="9" y1="13" x2="15" y2="13" />
+                    <line x1="9" y1="17" x2="15" y2="17" />
+                    <line x1="10" y1="9" x2="10" y2="17" />
+                  </svg>
+                }
+              >
+                      <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {/* Left Section: Target Input & Current Stats */}
                           <div className="space-y-4">
@@ -268,7 +260,7 @@ export default function AcademicModule() {
                               <p className="text-[10px] mt-1.5 italic" style={{ color: 'var(--fg-tertiary)' }}>Modifica el valor para recalcular en tiempo real.</p>
                             </div>
 
-                            <div className="p-4 rounded-xl space-y-2" style={{ background: 'rgba(var(--ink-rgb),.04)', border: '1px solid rgba(var(--ink-rgb),.06)' }}>
+                            <div className="p-4 space-y-2" style={{ background: 'rgba(var(--ink-rgb),.04)', border: '1px solid rgba(var(--ink-rgb),.06)', borderRadius: 'var(--ds-radius-md)' }}>
                               <div className="flex justify-between items-center text-xs">
                                 <span style={{ color: 'var(--fg-secondary)' }}>Puntos acumulados:</span>
                                 <span className="font-semibold" style={{ color: 'var(--fg-primary)' }}>{stats.currentWeighted.toFixed(2)}</span>
@@ -290,7 +282,7 @@ export default function AcademicModule() {
                                 borderColor: `${statusColor}40`
                               }}
                             >
-                              <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--fg-tertiary)' }}>Resultado de Proyección</p>
+                              <p className="ds-label !mb-1">Resultado de Proyección</p>
 
                               {remainingPercentage > 0 && neededOnRemaining > 0 && neededOnRemaining <= 5.0 && (
                                 <div className="mb-2">
@@ -338,10 +330,7 @@ export default function AcademicModule() {
                           </div>
                         </div>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              </Accordion>
 
               <div className="space-y-4">
                 <AnimatePresence mode="popLayout">
@@ -355,7 +344,7 @@ export default function AcademicModule() {
                       style={{ background: 'rgba(var(--ink-rgb),.03)', border: '1px solid rgba(var(--ink-rgb),.07)' }}
                     >
                       <div className="col-span-5">
-                        <label className="text-[10px] uppercase mb-1.5 block" style={{ color: 'var(--fg-tertiary)' }}>Nombre del corte / parcial</label>
+                        <label className="ds-label !mb-1.5">Nombre del corte / parcial</label>
                         <input
                           type="text"
                           value={ev.name}
@@ -366,7 +355,7 @@ export default function AcademicModule() {
                         />
                       </div>
                       <div className="col-span-3">
-                        <label className="text-[10px] uppercase mb-1.5 block" style={{ color: 'var(--fg-tertiary)' }}>Porcentaje (%)</label>
+                        <label className="ds-label !mb-1.5">Porcentaje (%)</label>
                         <input
                           type="number"
                           value={ev.percentage || ''}
@@ -377,7 +366,7 @@ export default function AcademicModule() {
                         />
                       </div>
                       <div className="col-span-3">
-                        <label className="text-[10px] uppercase mb-1.5 block" style={{ color: 'var(--fg-tertiary)' }}>Nota Obtenida</label>
+                        <label className="ds-label !mb-1.5">Nota Obtenida</label>
                         <input
                           type="number"
                           step="0.1"

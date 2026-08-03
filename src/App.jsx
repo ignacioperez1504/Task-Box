@@ -19,6 +19,7 @@ import AcademicModule from './components/academic/AcademicModule'
 import HabitModule from './components/habits/HabitModule'
 import ReminderModule from './components/reminders/ReminderModule'
 import CustomCursor from './components/ui/CustomCursor'
+import Button from './components/ui/Button'
 
 export default function App() {
   const { fetchTasks, subscribeToChanges: subscribeTasks, tasks } = useTaskStore()
@@ -77,7 +78,10 @@ export default function App() {
 
   if (!isReady) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#060B12]">
+      <div
+        className="h-screen w-screen flex flex-col items-center justify-center"
+        style={{ background: 'var(--bg-app)' }}
+      >
         <motion.div
           animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
@@ -85,10 +89,13 @@ export default function App() {
         >
           <div className="w-8 h-8 rounded-full bg-terracotta" />
         </motion.div>
-        <h1 className="font-display text-4xl text-beige tracking-tight mb-2">
+        <h1
+          className="font-display mb-2"
+          style={{ fontSize: 'var(--text-display-lg)', letterSpacing: '.08em', color: 'var(--fg-primary)' }}
+        >
           <span className="text-terracotta">U</span>need<span className="text-terracotta">T</span>
         </h1>
-        <p className="text-sm text-beige-dark font-mono animate-pulse">
+        <p className="ds-technical text-sm animate-pulse" style={{ color: 'var(--fg-tertiary)' }}>
           Inicializando...
         </p>
       </div>
@@ -96,7 +103,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden text-beige" style={{ background: 'var(--bg-app)' }}>
+    <div className="h-screen w-screen flex overflow-hidden" style={{ background: 'var(--bg-app)', color: 'var(--fg-primary)' }}>
       <CustomCursor />
       {/* Modals & Overlays */}
       <DeleteModal />
@@ -109,25 +116,20 @@ export default function App() {
             initial={{ opacity: 0, y: 50, x: '-50%' }}
             animate={{ opacity: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, y: 50, x: '-50%' }}
-            className="fixed bottom-6 left-1/2 z-[100] glass px-6 py-4 rounded-xl shadow-elevated border border-terracotta/30 flex items-center gap-4"
+            className="fixed bottom-6 left-1/2 z-[100] glass-strong px-6 py-4 flex items-center gap-4"
+            style={{ borderRadius: 'var(--ds-radius-md)', borderColor: 'rgba(232,130,91,.35)' }}
           >
             <div>
-              <p className="text-sm font-medium text-beige">API Key necesaria</p>
-              <p className="text-xs text-beige-dark">Para clasificar tareas con IA, configura tu llave de Gemini.</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--fg-primary)' }}>API Key necesaria</p>
+              <p className="text-xs" style={{ color: 'var(--fg-secondary)' }}>Para clasificar tareas con IA, configura tu llave de Gemini.</p>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => { hideApiKeyWarning(); openSettings() }}
-                className="bg-terracotta text-black px-4 py-2 rounded-lg text-xs font-medium hover:bg-terracotta-light transition-colors"
-              >
+              <Button size="sm" onClick={() => { hideApiKeyWarning(); openSettings() }}>
                 Configurar
-              </button>
-              <button
-                onClick={hideApiKeyWarning}
-                className="px-4 py-2 text-xs text-beige border border-beige/20 rounded-lg hover:bg-beige/10 transition-colors"
-              >
+              </Button>
+              <Button size="sm" variant="secondary" onClick={hideApiKeyWarning}>
                 Cerrar
-              </button>
+              </Button>
             </div>
           </motion.div>
         )}

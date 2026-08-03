@@ -28,7 +28,7 @@ const OPTIONS = [
 export default function ImportanceSelector({ value, onChange }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
+      <label className="ds-label mb-2">
         Importancia percibida
       </label>
       <div className="grid grid-cols-3 gap-3">

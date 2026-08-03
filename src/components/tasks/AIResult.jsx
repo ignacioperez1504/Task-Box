@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import GlassCard from '../ui/GlassCard'
+import Button from '../ui/Button'
 
 const PRIORITY_COLORS = {
   'Crítica': '#E15252',
@@ -29,7 +30,7 @@ export default function AIResult({ result, onConfirm, onAdjust }) {
       transition={{ duration: 0.4 }}
       className="py-6 px-2"
     >
-      <p className="text-xs uppercase tracking-widest mb-6 text-center" style={{ color: 'var(--fg-tertiary)' }}>
+      <p className="ds-label text-center !mb-6">
         Resultado de la clasificación
       </p>
 
@@ -100,31 +101,19 @@ export default function AIResult({ result, onConfirm, onAdjust }) {
           className="rounded-xl p-4 mb-8"
           style={{ background: 'rgba(var(--ink-rgb),.05)', border: '1px solid rgba(var(--ink-rgb),.1)' }}
         >
-          <p className="text-xs mb-2 font-medium uppercase tracking-widest" style={{ color: 'var(--fg-tertiary)' }}>Plan de Estudio</p>
+          <p className="ds-label !mb-2">Plan de Estudio</p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>{result.studyPlan}</p>
         </motion.div>
       )}
 
       {/* Buttons */}
       <div className="flex gap-3">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onConfirm}
-          className="flex-1 bg-terracotta font-medium py-3.5 rounded-xl text-sm hover:bg-terracotta-light transition-colors"
-          style={{ color: '#FFF8F4' }}
-        >
+        <Button size="lg" className="flex-1" onClick={onConfirm}>
           Confirmar y guardar
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onAdjust}
-          className="px-5 py-3.5 text-sm rounded-xl hover-surface transition-colors"
-          style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
-        >
+        </Button>
+        <Button size="lg" variant="secondary" onClick={onAdjust}>
           Ajustar
-        </motion.button>
+        </Button>
       </div>
     </motion.div>
   )

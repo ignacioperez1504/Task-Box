@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
+import { Input, Label } from '../ui/Field'
+import Button from '../ui/Button'
+
+const TYPE_OPTIONS = [
+  { value: 'complete_tasks', label: 'Completar tareas' },
+  { value: 'dedicate_hours', label: 'Dedicar horas' },
+]
 
 export default function GoalForm({ onSave, onCancel, initial = null }) {
   const { subjects } = useSubjectStore()
@@ -27,72 +34,96 @@ export default function GoalForm({ onSave, onCancel, initial = null }) {
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onSubmit={handleSubmit}
-      className="space-y-3 p-3 rounded-xl bg-teal-darker/50 border border-beige/10"
+      className="space-y-3 p-3"
+      style={{
+        background: 'rgba(var(--ink-rgb),.04)',
+        border: '1px solid rgba(var(--ink-rgb),.1)',
+        borderRadius: 'var(--ds-radius-md)',
+      }}
     >
-      <input
+      <Input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Nombre de la meta"
-        className="w-full bg-transparent border-b border-beige/20 py-1.5 text-sm text-beige placeholder:text-beige-dark focus:border-terracotta outline-none transition-colors"
+        className="!px-3 !py-2"
       />
 
       <div className="flex gap-2">
-        {['complete_tasks', 'dedicate_hours'].map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setType(t)}
-            className="flex-1 py-1.5 text-xs rounded-lg transition-all duration-250"
-            style={{
-              background: type === t ? 'rgba(232,130,91,0.3)' : 'rgba(27,58,53,0.3)',
-              color: type === t ? '#E8825B' : '#C8C5B8',
-              border: `1px solid ${type === t ? 'rgba(232,130,91,0.4)' : 'rgba(200,197,184,0.1)'}`,
-            }}
-          >
-            {t === 'complete_tasks' ? 'Completar tareas' : 'Dedicar horas'}
-          </button>
-        ))}
+        {TYPE_OPTIONS.map((opt) => {
+          const active = type === opt.value
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setType(opt.value)}
+              className="flex-1 py-1.5 text-xs transition-colors cursor-pointer"
+              style={{
+                borderRadius: 'var(--ds-radius-sm)',
+                background: active ? 'rgba(232,130,91,.22)' : 'rgba(var(--ink-rgb),.05)',
+                color: active ? 'var(--color-terracotta)' : 'var(--fg-secondary)',
+                border: `1px solid ${active ? 'rgba(232,130,91,.4)' : 'rgba(var(--ink-rgb),.1)'}`,
+                transitionDuration: 'var(--ds-duration-base)',
+              }}
+            >
+              {opt.label}
+            </button>
+          )
+        })}
       </div>
 
-      <input
+      <Input
         type="number"
         value={targetValue}
         onChange={(e) => setTargetValue(e.target.value)}
         placeholder={type === 'complete_tasks' ? 'Nº de tareas' : 'Nº de horas'}
         min="1"
         step="0.5"
-        className="w-full bg-transparent border-b border-beige/20 py-1.5 text-sm text-beige placeholder:text-beige-dark focus:border-terracotta outline-none transition-colors"
+        className="!px-3 !py-2"
       />
 
       {type === 'dedicate_hours' && (
-        <select
-          value={subjectId}
-          onChange={(e) => setSubjectId(e.target.value)}
-          className="w-full bg-teal-darker text-beige text-sm py-1.5 rounded border border-beige/20 outline-none"
-        >
-          <option value="">Cualquier materia</option>
-          {subjects.map((s) => (
-            <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </select>
+        <div>
+          <Label>Materia</Label>
+          <select
+            value={subjectId}
+            onChange={(e) => setSubjectId(e.target.value)}
+            className="w-full text-sm px-3 py-2 outline-none focus:border-terracotta cursor-pointer"
+            style={{
+              background: 'rgba(var(--ink-rgb),.06)',
+              border: '1px solid rgba(var(--ink-rgb),.15)',
+              borderRadius: 'var(--ds-radius-control)',
+              color: 'var(--fg-primary)',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            <option value="">Cualquier materia</option>
+            {subjects.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </div>
       )}
 
-      <input
-        type="date"
-        value={weekStart}
-        onChange={(e) => setWeekStart(e.target.value)}
-        className="w-full bg-teal-darker text-beige text-sm py-1.5 rounded border border-beige/20 outline-none"
-      />
+      <div>
+        <Label>Semana de inicio</Label>
+        <Input
+          type="date"
+          value={weekStart}
+          onChange={(e) => setWeekStart(e.target.value)}
+          className="!px-3 !py-2"
+        />
+      </div>
 
-      <div className="flex gap-2">
-        <button type="submit" className="flex-1 bg-terracotta text-black text-sm font-medium py-2 rounded-lg hover:bg-terracotta-light transition-colors">
+      <div className="flex gap-2 pt-1">
+        <Button type="submit" size="sm" className="flex-1">
           {initial ? 'Guardar' : 'Crear meta'}
-        </button>
-        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-beige-dark border border-beige/20 rounded-lg hover:bg-beige/10 transition-colors">
+        </Button>
+        <Button type="button" size="sm" variant="secondary" onClick={onCancel}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </motion.form>
   )

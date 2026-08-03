@@ -5,17 +5,14 @@
    ============================================ */
 
 @theme static {
-  /* --- Paleta principal --- */
-  --color-teal: #1B3A35;
-  --color-teal-light: #2E6B5E;
-  --color-teal-darker: #122824;
-  --color-teal-darkest: #0D1E1B;
+  /* --- Paleta principal ---
+     La escala teal/beige de la versión anterior se eliminó: fijaba el color
+     independientemente del tema y era la causa de que varias secciones no
+     respondieran al toggle. Para superficies y texto usá los tokens de
+     --fg-* / --glass-* de abajo. --- */
   --color-terracotta: #E8825B;
   --color-terracotta-light: #FA9D75;
   --color-terracotta-dark: #CB6B45;
-  --color-beige: #C8C5B8;
-  --color-beige-dark: #A8A598;
-  --color-black: #0A0A0A;
 
   /* --- Colores de carga del calendario (escala UneedT design system) --- */
   --color-load-0: #3F6180;
@@ -96,14 +93,18 @@
   --hover-wash: rgba(28,43,56,.05);
   --hover-wash-strong: rgba(28,43,56,.08);
 
+  /* --- Líneas de rejilla del calendario (se aclaran en oscuro) --- */
+  --grid-line: rgba(28,43,56,.22);
+
   /* --- Blur --- */
   --blur-glass: 20px;
   --blur-glass-strong: 28px;
 
   /* --- Radios propios del design system (no pisan el --radius-* de Tailwind) --- */
-  --ds-radius-lg: 24px;
-  --ds-radius-md: 16px;
-  --ds-radius-sm: 10px;
+  --ds-radius-lg: 24px;   /* tarjetas, modales, paneles de página */
+  --ds-radius-md: 16px;   /* paneles de dropdown, tarjetas internas */
+  --ds-radius-sm: 10px;   /* chips, botones de icono, tabs */
+  --ds-radius-control: 12px; /* inputs, botones de acción, selects */
 
   /* --- Movimiento --- */
   --ds-ease-out: cubic-bezier(.16,1,.3,1);
@@ -154,6 +155,8 @@
   --divider-soft: rgba(255,255,255,.10);
   --hover-wash: rgba(255,255,255,.06);
   --hover-wash-strong: rgba(255,255,255,.1);
+
+  --grid-line: rgba(255,255,255,.12);
 }
 
 /* ============================================
@@ -170,7 +173,7 @@ html {
   font-family: var(--font-body);
   background: var(--bg-app);
   background-attachment: fixed;
-  color: var(--color-beige);
+  color: var(--fg-primary);
   scroll-behavior: smooth;
   color-scheme: light;
   transition: background 0.3s ease;
@@ -226,7 +229,7 @@ body::after {
 #cursor-ring {
   width: 32px;
   height: 32px;
-  border: 2px solid var(--color-teal-light);
+  border: 2px solid rgba(var(--ink-rgb), .45);
   transform: translate(-50%, -50%);
   transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease;
 }
@@ -243,10 +246,11 @@ body::after {
 
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-teal-darker);
+  background: rgba(var(--ink-rgb), .06);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -258,23 +262,57 @@ body::after {
   background: var(--color-terracotta-light);
 }
 
+/* Firefox — mismo lenguaje que el thumb terracota de WebKit. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-terracotta) rgba(var(--ink-rgb), .06);
+}
+
+/* Variante discreta para paneles internos: la pista desaparece y el thumb
+   solo aparece al pasar el cursor, para no competir con el vidrio. */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--ink-rgb), .18);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: var(--color-terracotta);
+}
+
+.custom-scrollbar {
+  scrollbar-color: rgba(var(--ink-rgb), .18) transparent;
+}
+
+.custom-scrollbar:hover {
+  scrollbar-color: var(--color-terracotta) transparent;
+}
+
 /* ============================================
    GLASSMORPHISM UTILITIES
    ============================================ */
 
+/* Superficie de vidrio estándar. Prefiere el componente <GlassCard>; esta
+   clase existe para los pocos casos que no pueden envolver un elemento. */
 .glass {
-  background: rgba(27, 58, 53, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200, 197, 184, 0.12);
-  box-shadow: var(--shadow-card);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  transform: translateZ(0);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-card), var(--shadow-inset-highlight);
 }
 
-.glass-dark {
-  background: rgba(10, 10, 10, 0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(200, 197, 184, 0.08);
+/* Vidrio elevado: modales, dropdowns y cualquier capa por encima del contenido. */
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--blur-glass-strong));
+  -webkit-backdrop-filter: blur(var(--blur-glass-strong));
+  transform: translateZ(0);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-elevated);
 }
 
 /* ============================================
@@ -322,6 +360,28 @@ body::after {
 
 .font-display {
   font-family: var(--font-display);
+}
+
+/* Etiqueta / eyebrow — el único estilo de rótulo del sistema. Antes convivían
+   cuatro variantes (tracking-wider, tracking-widest, 10px+.15em, ...). */
+.ds-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--fg-tertiary);
+}
+
+/* La app usa dos familias: display (Cormorant) y body (DM Sans). Los bloques
+   "técnicos" (prompts, IDs) se diferencian por tracking, no por una tercera
+   familia monoespaciada ajena al sistema. */
+.ds-technical {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
 }
 
 .animate-shimmer {

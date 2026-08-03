@@ -24,8 +24,11 @@ export default function TagInput({ tags = [], onChange }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-        Etiquetas <span className="normal-case">(opcional, máx. 5)</span>
+      <label className="ds-label mb-2">
+        Etiquetas{' '}
+        <span style={{ textTransform: 'none', letterSpacing: 'normal', opacity: 0.75 }}>
+          (opcional, máx. 5)
+        </span>
       </label>
 
       {tags.length > 0 && (

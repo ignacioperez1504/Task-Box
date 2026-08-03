@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useContextStore } from '../../store/contextStore'
 import { clearClassificationCache } from '../../lib/aiService'
+import Field, { Label } from '../ui/Field'
+import Button from '../ui/Button'
 
 // ─── Internal chip-tag input ──────────────────────────────────────────────────
 
@@ -20,10 +22,7 @@ function ChipInput({ label, hint, items, onChange, max = 6, placeholder }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-        {label}{' '}
-        {hint && <span className="normal-case opacity-70">{hint}</span>}
-      </label>
+      <Label hint={hint}>{label}</Label>
 
       {items.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
@@ -122,19 +121,13 @@ export default function ContextProfile({ onCancel }) {
       />
 
       {/* Horario */}
-      <div>
-        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-          Horario de Trabajo
-        </label>
-        <input
-          type="text"
-          value={workSchedule}
-          onChange={(e) => setWorkSchedule(e.target.value)}
-          placeholder="Ej: Trabajo 4h diarias en las mañanas"
-          className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-          style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-        />
-      </div>
+      <Field
+        label="Horario de Trabajo"
+        type="text"
+        value={workSchedule}
+        onChange={(e) => setWorkSchedule(e.target.value)}
+        placeholder="Ej: Trabajo 4h diarias en las mañanas"
+      />
 
       {/* Materias débiles */}
       <ChipInput
@@ -157,19 +150,14 @@ export default function ContextProfile({ onCancel }) {
       />
 
       {/* Estilo de aprendizaje */}
-      <div>
-        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-          Estilo de Aprendizaje
-        </label>
-        <textarea
-          value={studyStyle}
-          onChange={(e) => setStudyStyle(e.target.value)}
-          placeholder="Ej: Aprendo mejor con ejemplos prácticos. Necesito repasar conceptos antes de resolver ejercicios."
-          rows={3}
-          className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm resize-none"
-          style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-        />
-      </div>
+      <Field
+        as="textarea"
+        label="Estilo de Aprendizaje"
+        value={studyStyle}
+        onChange={(e) => setStudyStyle(e.target.value)}
+        placeholder="Ej: Aprendo mejor con ejemplos prácticos. Necesito repasar conceptos antes de resolver ejercicios."
+        rows={3}
+      />
 
       {/* Active profile badge */}
       <AnimatePresence>
@@ -178,8 +166,12 @@ export default function ContextProfile({ onCancel }) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="flex items-center justify-between px-3 py-2 rounded-lg"
-            style={{ background: 'rgba(79,174,140,.12)', border: '1px solid rgba(79,174,140,.25)' }}
+            className="flex items-center justify-between px-3 py-2"
+            style={{
+              background: 'rgba(79,174,140,.12)',
+              border: '1px solid rgba(79,174,140,.25)',
+              borderRadius: 'var(--ds-radius-sm)',
+            }}
           >
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#4FAE8C' }} />
@@ -200,21 +192,13 @@ export default function ContextProfile({ onCancel }) {
 
       {/* Footer */}
       <div className="flex gap-3 pt-1">
-        <button
-          onClick={handleSave}
-          className="flex-1 bg-terracotta font-medium py-3 rounded-xl hover:bg-terracotta-light transition-colors text-sm"
-          style={{ color: '#FFF8F4' }}
-        >
+        <Button onClick={handleSave} className="flex-1">
           {saved ? '✓ Perfil guardado' : 'Guardar perfil'}
-        </button>
+        </Button>
         {onCancel && (
-          <button
-            onClick={onCancel}
-            className="px-5 py-3 text-sm rounded-xl hover-surface transition-colors"
-            style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
-          >
+          <Button variant="secondary" onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
       </div>
     </div>

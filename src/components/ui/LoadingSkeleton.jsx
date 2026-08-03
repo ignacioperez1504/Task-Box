@@ -15,14 +15,8 @@ export default function LoadingSkeleton({ lines = 3, className = '' }) {
 export function CardSkeleton() {
   return (
     <div
-      className="rounded-2xl p-5 space-y-3"
-      style={{
-        background: 'var(--glass-bg)',
-        border: '1px solid var(--glass-border)',
-        backdropFilter: 'blur(var(--blur-glass))',
-        WebkitBackdropFilter: 'blur(var(--blur-glass))',
-        boxShadow: 'var(--shadow-card), var(--shadow-inset-highlight)',
-      }}
+      className="glass p-5 space-y-3"
+      style={{ borderRadius: 'var(--ds-radius-lg)' }}
     >
       <div className="animate-shimmer rounded h-6 w-3/4" />
       <div className="flex gap-2">

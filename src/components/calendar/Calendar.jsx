@@ -9,7 +9,7 @@ import CalendarTask from './CalendarTask'
 import { CardSkeleton } from '../ui/LoadingSkeleton'
 import GlassCard from '../ui/GlassCard'
 
-const GRID_LINE = '#959da4'
+const GRID_LINE = 'var(--grid-line)'
 
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 const DAYS_ES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
@@ -48,35 +48,46 @@ function AIRecommendationPanel({ tasks, reminders }) {
   if (tasks.length === 0 && !loading && !recommendation) return null
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-6 p-5 glass-dark border border-terracotta/20 rounded-2xl relative overflow-hidden group min-h-[100px]"
+      className="mb-6 relative overflow-hidden group min-h-[100px]"
     >
-      <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E8825B" strokeWidth="1.5">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-        </svg>
-      </div>
+      <GlassCard radius="md" padding={20} style={{ borderColor: 'rgba(232,130,91,.3)' }}>
+        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-terracotta)" strokeWidth="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
 
-      <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-terracotta/20 flex items-center justify-center shrink-0 border border-terracotta/30">
-          <span className="text-xl">✨</span>
+        <div className="flex items-start gap-4">
+          <div
+            className="w-10 h-10 flex items-center justify-center shrink-0"
+            style={{
+              borderRadius: 'var(--ds-radius-control)',
+              background: 'rgba(232,130,91,.2)',
+              border: '1px solid rgba(232,130,91,.3)',
+            }}
+          >
+            <span className="text-xl">✨</span>
+          </div>
+          <div className="flex-1">
+            <h4 className="ds-label mb-1.5" style={{ color: 'var(--color-terracotta)' }}>
+              Recomendación de hoy
+            </h4>
+            {loading ? (
+              <div className="space-y-2 mt-2">
+                <div className="h-3 rounded w-3/4 animate-shimmer" />
+                <div className="h-3 rounded w-1/2 animate-shimmer" />
+              </div>
+            ) : (
+              <p className="text-sm leading-relaxed italic" style={{ color: 'var(--fg-secondary)' }}>
+                {recommendation || (tasks.length > 0 ? "Analizando tus tareas para darte el mejor consejo..." : "No hay tareas pendientes para analizar.")}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex-1">
-          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta mb-1">Recomendación de hoy</h4>
-          {loading ? (
-            <div className="space-y-2 mt-2">
-              <div className="h-3 bg-beige/10 rounded w-3/4 animate-pulse" />
-              <div className="h-3 bg-beige/10 rounded w-1/2 animate-pulse" />
-            </div>
-          ) : (
-            <p className="text-sm text-beige leading-relaxed italic">
-              {recommendation || (tasks.length > 0 ? "Analizando tus tareas para darte el mejor consejo..." : "No hay tareas pendientes para analizar.")}
-            </p>
-          )}
-        </div>
-      </div>
+      </GlassCard>
     </motion.div>
   )
 }
@@ -210,13 +221,13 @@ export default function Calendar() {
     <div className="h-full flex flex-col overflow-y-auto custom-scrollbar" style={{ padding: '40px 32px 32px' }}>
       {/* Header */}
       <div className="flex items-center shrink-0" style={{ gap: 20, marginBottom: 20 }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 36, color: 'var(--fg-primary)', minWidth: 220 }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 'var(--text-display-md)', lineHeight: 1.1, color: 'var(--fg-primary)', minWidth: 220 }}>
           {MONTHS_ES[viewMonth]} <span style={{ color: 'var(--color-terracotta)' }}>{viewYear}</span>
         </h2>
 
         <div
-          className="flex rounded-full"
-          style={{ gap: 4, padding: 4, background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(var(--blur-glass))', WebkitBackdropFilter: 'blur(var(--blur-glass))' }}
+          className="flex rounded-full glass"
+          style={{ gap: 4, padding: 4 }}
         >
           <button onClick={prevMonth} className="w-10 h-10 rounded-full flex items-center justify-center hover-surface transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>

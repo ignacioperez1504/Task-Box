@@ -15,7 +15,8 @@ export default function RightPanel() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 bg-black/30 z-40"
+            className="fixed inset-0 z-40 backdrop-blur-sm"
+            style={{ background: 'rgba(6,11,18,.45)' }}
             onClick={closeRightPanel}
           />
 
@@ -25,7 +26,7 @@ export default function RightPanel() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 w-[35%] min-w-[420px] z-50 overflow-y-auto"
+            className="fixed right-0 top-0 bottom-0 w-[35%] min-w-[420px] z-50 overflow-y-auto custom-scrollbar"
             style={{
               background: 'var(--glass-bg-strong)',
               backdropFilter: 'blur(var(--blur-glass-strong))',

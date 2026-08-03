@@ -22,7 +22,7 @@ export default function SubjectDistribution() {
 
   return (
     <div>
-      <p style={{ fontSize: 10, color: 'var(--fg-tertiary)', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 10 }}>Por materia</p>
+      <p className="ds-label" style={{ marginBottom: 10 }}>Por materia</p>
       <div className="space-y-2">
         {distribution.map((s) => (
           <div key={s.id} className="flex items-center gap-2">

@@ -3,11 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useUIStore } from '../../store/uiStore'
 import { saveConfig } from '../../lib/aiService'
 import ContextProfile from './ContextProfile'
+import EmailAccountsSettings from './EmailAccountsSettings'
+import Modal from '../ui/Modal'
+import SegmentedTabs from '../ui/SegmentedTabs'
+import Field from '../ui/Field'
+import Button from '../ui/Button'
 
 const TABS = [
-  { id: 'api', label: 'API & Modelo' },
-  { id: 'profile', label: 'Mi Perfil IA' },
+  { value: 'api', label: 'API & Modelo' },
+  { value: 'profile', label: 'Mi Perfil IA' },
+  { value: 'email', label: 'Correo' },
 ]
+
+const SETTINGS_ICON = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+)
+
+// Cada pestaña entra con el mismo desplazamiento lateral; el sentido depende de
+// si avanzás o retrocedés en la fila de tabs.
+const tabTransition = { duration: 0.18, ease: [0.16, 1, 0.3, 1] }
 
 export default function SettingsModal() {
   const { settingsOpen, closeSettings } = useUIStore()
@@ -31,141 +48,81 @@ export default function SettingsModal() {
   }
 
   return (
-    <AnimatePresence>
-      {settingsOpen && (
-        <>
-          {/* Backdrop */}
+    <Modal
+      open={settingsOpen}
+      onClose={closeSettings}
+      title="Configuración"
+      eyebrow="Preferencias de UneedT"
+      icon={SETTINGS_ICON}
+      width={540}
+      scrollable
+      headerExtra={
+        <SegmentedTabs options={TABS} value={activeTab} onChange={setActiveTab} />
+      }
+    >
+      <AnimatePresence mode="wait">
+        {activeTab === 'api' ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/40"
-            onClick={closeSettings}
-          />
-
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[61]
-                       w-[500px] rounded-2xl flex flex-col max-h-[88vh]"
-            style={{
-              background: 'var(--glass-bg-strong)',
-              border: '1px solid var(--glass-border)',
-              backdropFilter: 'blur(var(--blur-glass-strong))',
-              WebkitBackdropFilter: 'blur(var(--blur-glass-strong))',
-              boxShadow: 'var(--shadow-elevated)',
-            }}
+            key="api"
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 8 }}
+            transition={tabTransition}
+            className="space-y-5"
           >
-            {/* ── Header ────────────────────────────────────── */}
-            <div className="px-8 pt-8 pb-5 shrink-0">
-              <h2 className="font-display text-2xl mb-5" style={{ color: 'var(--fg-primary)' }}>Configuración</h2>
+            <Field
+              label="API Key de Gemini"
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="AIza..."
+            />
 
-              {/* Tab switcher */}
-              <div className="flex gap-1 rounded-xl p-1" style={{ background: 'rgba(var(--ink-rgb),.06)' }}>
-                {TABS.map(({ id, label }) => (
-                  <button
-                    key={id}
-                    onClick={() => setActiveTab(id)}
-                    className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors"
-                    style={activeTab === id
-                      ? { background: 'var(--color-terracotta)', color: '#FFF8F4' }
-                      : { color: 'var(--fg-secondary)' }
-                    }
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Field
+              label="Endpoint Base"
+              type="text"
+              value={endpoint}
+              onChange={(e) => setEndpoint(e.target.value)}
+            />
 
-            {/* ── Scrollable content ────────────────────────── */}
-            <div className="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
-              <AnimatePresence mode="wait">
-                {activeTab === 'api' ? (
-                  <motion.div
-                    key="api"
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 8 }}
-                    transition={{ duration: 0.15 }}
-                    className="space-y-5"
-                  >
-                    <div>
-                      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-                        API Key de Gemini
-                      </label>
-                      <input
-                        type="password"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="AIza..."
-                        className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-                        style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-                      />
-                    </div>
+            <Field
+              label="Modelo"
+              type="text"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+            />
 
-                    <div>
-                      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-                        Endpoint Base
-                      </label>
-                      <input
-                        type="text"
-                        value={endpoint}
-                        onChange={(e) => setEndpoint(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-                        style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>
-                        Modelo
-                      </label>
-                      <input
-                        type="text"
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors text-sm"
-                        style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
-                      />
-                    </div>
-
-                    <div className="flex gap-3 pt-3">
-                      <button
-                        onClick={handleSaveApi}
-                        className="flex-1 bg-terracotta font-medium py-3 rounded-xl hover:bg-terracotta-light transition-colors text-sm"
-                        style={{ color: '#FFF8F4' }}
-                      >
-                        {saved ? '✓ Guardado' : 'Guardar configuración'}
-                      </button>
-                      <button
-                        onClick={closeSettings}
-                        className="px-6 py-3 text-sm rounded-xl hover-surface transition-colors"
-                        style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="profile"
-                    initial={{ opacity: 0, x: 8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <ContextProfile onCancel={closeSettings} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className="flex gap-3 pt-2">
+              <Button onClick={handleSaveApi} className="flex-1">
+                {saved ? '✓ Guardado' : 'Guardar configuración'}
+              </Button>
+              <Button variant="secondary" onClick={closeSettings}>
+                Cancelar
+              </Button>
             </div>
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        ) : activeTab === 'profile' ? (
+          <motion.div
+            key="profile"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={tabTransition}
+          >
+            <ContextProfile onCancel={closeSettings} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="email"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={tabTransition}
+          >
+            <EmailAccountsSettings />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Modal>
   )
 }

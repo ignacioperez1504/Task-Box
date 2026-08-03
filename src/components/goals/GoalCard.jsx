@@ -13,8 +13,9 @@ export default function GoalCard({ goal, onEdit, onDelete }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="rounded-xl p-4 transition-all duration-300"
+      className="p-4 transition-all duration-300"
       style={{
+        borderRadius: 'var(--ds-radius-md)',
         background: isCompleted
           ? 'rgba(232,130,91,0.18)'
           : 'var(--glass-bg)',

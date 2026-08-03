@@ -7,7 +7,8 @@ export default function Confetti({ active, onComplete }) {
     container.style.cssText = 'position:fixed;inset:0;z-index:99998;pointer-events:none;overflow:hidden;'
     document.body.appendChild(container)
 
-    const colors = ['#E8825B', '#2B4A63', '#C8C5B8', '#FA9D75', '#4FAE8C']
+    // Paleta de acento + escala de carga del sistema (visibles en ambos temas).
+    const colors = ['#E8825B', '#4A90E2', '#E8C468', '#FA9D75', '#4FAE8C']
 
     for (let i = 0; i < 40; i++) {
       const particle = document.createElement('div')

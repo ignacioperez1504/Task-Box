@@ -14,6 +14,7 @@ import ImportanceSelector from './ImportanceSelector'
 import TagInput from './TagInput'
 import AIProcessing from './AIProcessing'
 import AIResult from './AIResult'
+import Button from '../ui/Button'
 
 export default function TaskForm({ task = null }) {
   const { createTask, updateTask } = useTaskStore()
@@ -198,7 +199,7 @@ export default function TaskForm({ task = null }) {
 
       {/* Description */}
       <div>
-        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>Descripción</label>
+        <label className="ds-label mb-2">Descripción</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -221,7 +222,7 @@ export default function TaskForm({ task = null }) {
 
       {/* Percentage Weight */}
       <div>
-        <label className="text-xs uppercase tracking-wider block mb-2" style={{ color: 'var(--fg-tertiary)' }}>¿Cuánto vale esta tarea? (%)</label>
+        <label className="ds-label mb-2">¿Cuánto vale esta tarea? (%)</label>
         <div className="flex items-center gap-3">
           <input
             type="number"
@@ -255,8 +256,9 @@ export default function TaskForm({ task = null }) {
                   onClick={() => setManualPriority(p)}
                   className="px-3 py-1.5 rounded-lg text-xs transition-all duration-250"
                   style={{
-                    background: manualPriority === p ? '#E8825B' : 'rgba(var(--ink-rgb),.06)',
-                    color: manualPriority === p ? '#FFF8F4' : 'var(--fg-secondary)',
+                    borderRadius: 'var(--ds-radius-sm)',
+                    background: manualPriority === p ? 'var(--color-terracotta)' : 'rgba(var(--ink-rgb),.06)',
+                    color: manualPriority === p ? 'var(--fg-on-accent)' : 'var(--fg-secondary)',
                   }}
                 >
                   {p}
@@ -273,8 +275,9 @@ export default function TaskForm({ task = null }) {
                   onClick={() => setManualCategory(c)}
                   className="px-3 py-1.5 rounded-lg text-xs transition-all duration-250"
                   style={{
-                    background: manualCategory === c ? '#E8825B' : 'rgba(var(--ink-rgb),.06)',
-                    color: manualCategory === c ? '#FFF8F4' : 'var(--fg-secondary)',
+                    borderRadius: 'var(--ds-radius-sm)',
+                    background: manualCategory === c ? 'var(--color-terracotta)' : 'rgba(var(--ink-rgb),.06)',
+                    color: manualCategory === c ? 'var(--fg-on-accent)' : 'var(--fg-secondary)',
                   }}
                 >
                   {c}
@@ -299,43 +302,25 @@ export default function TaskForm({ task = null }) {
       {/* Buttons */}
       <div className="flex gap-3 pt-2">
         {phase === 'adjust' ? (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="button"
-            onClick={handleConfirm}
-            className="flex-1 bg-terracotta font-medium py-3.5 rounded-xl text-sm uppercase tracking-wider hover:bg-terracotta-light transition-colors"
-            style={{ color: '#FFF8F4' }}
-          >
+          <Button type="button" size="lg" className="flex-1" onClick={handleConfirm}>
             Guardar con ajustes
-          </motion.button>
+          </Button>
         ) : (
           <>
-            <motion.button
-              whileHover={isValid ? { scale: 1.02 } : {}}
-              whileTap={isValid ? { scale: 0.98 } : {}}
+            <Button
               type="button"
+              size="lg"
+              className="flex-1"
               onClick={handleClassify}
               disabled={!isValid}
-              className="flex-1 font-medium py-3.5 rounded-xl text-sm uppercase tracking-wider transition-all duration-300"
-              style={{
-                backgroundColor: isValid ? '#E8825B' : 'rgba(232,130,91,0.25)',
-                color: isValid ? '#FFF8F4' : 'var(--fg-tertiary)',
-                opacity: isValid ? 1 : 0.7,
-                animation: isValid ? 'pulse-terracotta 3s ease-in-out infinite' : 'none',
-              }}
+              pulse={isValid}
             >
               {isEditing ? 'Re-clasificar con IA' : 'Clasificar y Crear'}
-            </motion.button>
+            </Button>
             {isEditing && (
-              <button
-                type="button"
-                onClick={handleSaveWithoutAI}
-                className="px-5 py-3.5 text-sm rounded-xl hover-surface transition-colors"
-                style={{ color: 'var(--fg-primary)', border: '1px solid var(--glass-border)' }}
-              >
+              <Button type="button" size="lg" variant="secondary" onClick={handleSaveWithoutAI}>
                 Guardar sin IA
-              </button>
+              </Button>
             )}
           </>
         )}

@@ -25,10 +25,12 @@ export default function CalendarReminder({ reminder }) {
         }}
         className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all shrink-0 ${
           isCompleted
-            ? 'bg-terracotta border-terracotta text-white'
+            ? 'bg-terracotta border-terracotta'
             : 'bg-transparent text-transparent hover:border-terracotta/50'
         }`}
-        style={isCompleted ? undefined : { borderColor: 'rgba(var(--ink-rgb),.25)' }}
+        style={isCompleted
+          ? { color: 'var(--fg-on-accent)' }
+          : { borderColor: 'rgba(var(--ink-rgb),.25)' }}
       >
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
           <polyline points="20 6 9 17 4 12" />
