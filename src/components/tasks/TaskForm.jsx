@@ -6,6 +6,7 @@ import { useUIStore } from '../../store/uiStore'
 import { useAcademicStore } from '../../store/academicStore'
 import { useHabitStore } from '../../store/habitStore'
 import { useReminderStore } from '../../store/reminderStore'
+import { useNotificationStore } from '../../store/notificationStore'
 import { classifyTask, hasApiKey } from '../../lib/aiService'
 import SubjectSelect from './SubjectSelect'
 import CustomDatePicker from './CustomDatePicker'
@@ -19,16 +20,29 @@ import Button from '../ui/Button'
 export default function TaskForm({ task = null }) {
   const { createTask, updateTask } = useTaskStore()
   const { getSubjectById } = useSubjectStore()
-  const { closeRightPanel, showApiKeyWarning } = useUIStore()
+  const { closeRightPanel, showApiKeyWarning, pendingNotification } = useUIStore()
+  const { markConfirmed } = useNotificationStore()
   const isEditing = !!task
 
-  const [title, setTitle] = useState(task?.title || '')
+  // Si venimos desde una notificación de correo, los campos que se pueden
+  // prellenar arrancan con los valores extraídos por classifyEmailAsTask.
+  // subject_id / user_priority NO se prellenan porque son decisión del usuario
+  // (materia real de la app y su prioridad subjetiva).
+  const prefill = pendingNotification
+
+  const [title, setTitle] = useState(task?.title || prefill?.extracted_title || '')
   const [subjectId, setSubjectId] = useState(task?.subject_id || '')
-  const [description, setDescription] = useState(task?.description || '')
-  const [dueDate, setDueDate] = useState(task?.due_date || '')
-  const [duration, setDuration] = useState(task?.duration_hours ? parseFloat(task.duration_hours) : null)
+  const [description, setDescription] = useState(task?.description || prefill?.extracted_description || '')
+  const [dueDate, setDueDate] = useState(task?.due_date || prefill?.extracted_due_date || '')
+  const [duration, setDuration] = useState(
+    task?.duration_hours
+      ? parseFloat(task.duration_hours)
+      : prefill?.extracted_duration_hours
+        ? parseFloat(prefill.extracted_duration_hours)
+        : null
+  )
   const [importance, setImportance] = useState(task?.user_priority || '')
-  const [tags, setTags] = useState(task?.tags || [])
+  const [tags, setTags] = useState(task?.tags || (prefill ? ['correo'] : []))
   const { getTaskWeight, setTaskWeight, calculateCurrentGrade, getSubjectData, setTaskScore, setStudyPlan } = useAcademicStore()
   const [percentage, setPercentage] = useState(task ? getTaskWeight(task.id) : 0)
 
@@ -126,6 +140,9 @@ export default function TaskForm({ task = null }) {
         setTaskWeight(created.id, percentage)
         if (aiResult?.priorityScore) setTaskScore(created.id, aiResult.priorityScore)
         if (aiResult?.studyPlan) setStudyPlan(created.id, aiResult.studyPlan)
+        // Si venimos de una notificación de correo, marcarla como confirmada
+        // ahora que la tarea existe realmente.
+        if (prefill?.id) await markConfirmed(prefill.id, created.id)
       }
     }
 
@@ -154,7 +171,10 @@ export default function TaskForm({ task = null }) {
       if (updated) setTaskWeight(updated.id, percentage)
     } else {
       const created = await createTask(taskData)
-      if (created) setTaskWeight(created.id, percentage)
+      if (created) {
+        setTaskWeight(created.id, percentage)
+        if (prefill?.id) await markConfirmed(prefill.id, created.id)
+      }
     }
     closeRightPanel()
   }

@@ -4,6 +4,7 @@ import { useTaskStore } from './store/taskStore'
 import { useGoalStore } from './store/goalStore'
 import { useSubjectStore } from './store/subjectStore'
 import { useUIStore } from './store/uiStore'
+import { useNotificationStore } from './store/notificationStore'
 import { requestNotificationPermission, checkUpcomingTasks } from './lib/notifications'
 
 // Components
@@ -12,6 +13,7 @@ import RightPanel from './components/layout/RightPanel'
 import FAB from './components/layout/FAB'
 import SettingsModal from './components/settings/SettingsModal'
 import DeleteModal from './components/tasks/DeleteModal'
+import NotificationPanel from './components/notifications/NotificationPanel'
 import Calendar from './components/calendar/Calendar'
 import DayTasksView from './components/calendar/DayTasksView'
 import TaskList from './components/tasks/TaskList'
@@ -25,6 +27,7 @@ export default function App() {
   const { fetchTasks, subscribeToChanges: subscribeTasks, tasks } = useTaskStore()
   const { fetchGoals, subscribeToChanges: subscribeGoals, recalculateGoals } = useGoalStore()
   const { fetchSubjects } = useSubjectStore()
+  const { fetchNotifications, subscribeToChanges: subscribeNotifications } = useNotificationStore()
   const { activeSection, apiKeyWarning, hideApiKeyWarning, openSettings } = useUIStore()
 
   const [isReady, setIsReady] = useState(false)
@@ -37,11 +40,13 @@ export default function App() {
         fetchSubjects(),
         fetchTasks(),
         fetchGoals(),
+        fetchNotifications(),
       ])
 
       // 2. Setup Realtime subscriptions
       const unsubTasks = subscribeTasks()
       const unsubGoals = subscribeGoals()
+      const unsubNotifications = subscribeNotifications()
 
       // 3. Setup notifications and check for upcoming deadlines
       const hasPermission = await requestNotificationPermission()
@@ -63,6 +68,7 @@ export default function App() {
       return () => {
         unsubTasks()
         unsubGoals()
+        unsubNotifications()
       }
     }
 
@@ -108,6 +114,7 @@ export default function App() {
       {/* Modals & Overlays */}
       <DeleteModal />
       <SettingsModal />
+      <NotificationPanel />
       
       {/* API Key Warning Toast */}
       <AnimatePresence>

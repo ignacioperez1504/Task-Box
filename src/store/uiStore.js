@@ -12,9 +12,21 @@ export const useUIStore = create((set) => ({
   // Panel derecho (formulario crear/editar)
   rightPanelOpen: false,
   editingTask: null, // null = crear nueva, objeto = editar existente
-  openCreatePanel: () => set({ rightPanelOpen: true, editingTask: null }),
-  openEditPanel: (task) => set({ rightPanelOpen: true, editingTask: task }),
-  closeRightPanel: () => set({ rightPanelOpen: false, editingTask: null }),
+  // Cuando el usuario confirma una notificación de correo, guardamos acá los
+  // datos extraídos para que TaskForm los use como valores iniciales. El id
+  // de la notificación se conserva para marcarla como 'confirmed' cuando la
+  // tarea se cree realmente.
+  pendingNotification: null,
+  openCreatePanel: () => set({ rightPanelOpen: true, editingTask: null, pendingNotification: null }),
+  openEditPanel: (task) => set({ rightPanelOpen: true, editingTask: task, pendingNotification: null }),
+  openCreateFromNotification: (notification) =>
+    set({ rightPanelOpen: true, editingTask: null, pendingNotification: notification }),
+  closeRightPanel: () => set({ rightPanelOpen: false, editingTask: null, pendingNotification: null }),
+
+  // Panel de notificaciones de correo (bandeja de posibles tareas)
+  notificationsOpen: false,
+  openNotifications: () => set({ notificationsOpen: true }),
+  closeNotifications: () => set({ notificationsOpen: false }),
 
   // Modal de confirmación de eliminación
   deleteModal: null, // null = cerrado, { task } = abierto

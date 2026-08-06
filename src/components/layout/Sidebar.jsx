@@ -7,6 +7,7 @@ import SubjectDistribution from '../stats/SubjectDistribution'
 import GlassCard from '../ui/GlassCard'
 import ProgressRing from '../ui/ProgressRing'
 import ThemeToggle from '../ui/ThemeToggle'
+import NotificationBell from '../notifications/NotificationBell'
 
 const NAV_ITEMS = [
   {
@@ -334,6 +335,7 @@ export default function Sidebar() {
             {isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
           </button>
         )}
+        <NotificationBell />
         <button
           onClick={openSettings}
           className="flex items-center gap-2 text-sm transition-colors duration-250 cursor-pointer"
