@@ -1,3 +1,5 @@
+import { GlassLayers, glassSurfaceVariants } from './GlassSurface'
+
 export default function LoadingSkeleton({ lines = 3, className = '' }) {
   return (
     <div className={`space-y-3 ${className}`}>
@@ -14,10 +16,8 @@ export default function LoadingSkeleton({ lines = 3, className = '' }) {
 
 export function CardSkeleton() {
   return (
-    <div
-      className="glass p-5 space-y-3"
-      style={{ borderRadius: 'var(--ds-radius-lg)' }}
-    >
+    <div className={`${glassSurfaceVariants({ radius: 'lg' })} p-5 space-y-3`}>
+      <GlassLayers />
       <div className="animate-shimmer rounded h-6 w-3/4" />
       <div className="flex gap-2">
         <div className="animate-shimmer rounded-full h-5 w-16" />

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { GlassLayers, glassSurfaceVariants } from './GlassSurface'
 
 // Modal único de la app. Antes cada modal repetía su propio backdrop, su propia
 // superficie de vidrio y su propio header: SettingsModal no tenía bloque de
@@ -48,20 +49,17 @@ export default function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col max-h-[88vh]"
+            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col max-h-[88vh] ${glassSurfaceVariants(
+              { elevation: 'raised', radius: 'lg' }
+            )}`}
             style={{
               zIndex: zIndex + 1,
               width,
               maxWidth: '92vw',
-              background: 'var(--glass-bg-strong)',
-              border: '1px solid var(--glass-border)',
-              borderRadius: 'var(--ds-radius-lg)',
-              backdropFilter: 'blur(var(--blur-glass-strong))',
-              WebkitBackdropFilter: 'blur(var(--blur-glass-strong))',
-              transform: 'translateZ(0)',
-              boxShadow: 'var(--shadow-elevated)',
             }}
           >
+            <GlassLayers />
+
             {hasHeader && (
               <div
                 className="px-8 pt-7 pb-5 shrink-0"

@@ -6,6 +6,7 @@ import { useTaskStore } from '../../store/taskStore'
 import { useAcademicStore } from '../../store/academicStore'
 import PromptModal from './PromptModal'
 import Badge from '../ui/Badge'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 const PRIORITY_COLORS = {
   'Crítica': '#E15252',
@@ -56,6 +57,11 @@ export default function TaskCard({ task, index = 0 }) {
   }, [localProgress, task.id, updateTask])
 
   const isInProgress = !isCompleted && localProgress > 0 && localProgress < 100
+  const accentColor = isCritical
+    ? 'var(--color-priority-critica)'
+    : isInProgress
+      ? 'var(--color-priority-media)'
+      : null
 
   // Countdown
   const today = new Date()
@@ -76,6 +82,7 @@ export default function TaskCard({ task, index = 0 }) {
   }
 
   return (
+    <>
     <motion.div
       layout
       initial={{ opacity: 0, y: 20 }}
@@ -83,23 +90,33 @@ export default function TaskCard({ task, index = 0 }) {
       exit={{ opacity: 0, scale: 0.85 }}
       transition={{ duration: 0.3, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className={`group p-5 relative transition-all duration-300
-        ${isInProgress ? 'border-r-2 shadow-[0_0_15px_rgba(232,196,104,0.15)]' : ''}
-      `}
+      className={`group p-5 ${glassSurfaceVariants({ radius: 'lg', interactive: true })}`}
       style={{
-        borderRadius: 'var(--ds-radius-lg)',
-        background: 'var(--glass-bg)',
-        border: '1px solid var(--glass-border)',
-        borderRight: isInProgress ? '2px solid rgba(232,196,104,.5)' : undefined,
-        borderLeft: isCritical ? '3px solid var(--color-priority-critica)' : (isInProgress ? '3px solid var(--color-priority-media)' : '3px solid transparent'),
-        backdropFilter: 'blur(var(--blur-glass))',
-        WebkitBackdropFilter: 'blur(var(--blur-glass))',
-        boxShadow: 'var(--shadow-card), var(--shadow-inset-highlight)',
+        // El borde ya no se pinta aquí sino en la capa de vidrio, así que el
+        // estado de la tarea se expresa retintando la custom property.
+        '--gs-border': isCritical
+          ? 'rgba(225,82,82,.45)'
+          : isInProgress
+            ? 'rgba(232,196,104,.5)'
+            : 'var(--glass-border)',
         opacity: isCompleted ? 0.55 : 1,
         filter: isCompleted ? 'saturate(0.5)' : 'none',
         animation: isCritical ? 'pulse-terracotta 4s ease-in-out infinite' : 'none',
       }}
     >
+      <GlassLayers />
+
+      {/* Franja de estado. Va como hijo normal y no como borderLeft del
+          elemento: las capas de vidrio se pintan por encima del borde propio
+          de la caja y lo taparían. */}
+      {accentColor && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-0 bottom-0 w-[3px]"
+          style={{ background: accentColor, borderRadius: '3px 0 0 3px' }}
+        />
+      )}
+
       {/* Top row: title + actions */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
@@ -272,14 +289,19 @@ export default function TaskCard({ task, index = 0 }) {
         </div>
       )}
 
-      {/* Prompt Modal Overlay — se monta solo al abrirse, para no disparar la
-          generación del prompt en cada tarjeta de la lista. */}
-      {isPromptModalOpen && (
-        <PromptModal
-          task={task}
-          onClose={() => setIsPromptModalOpen(false)}
-        />
-      )}
     </motion.div>
+
+    {/* Prompt Modal Overlay — se monta solo al abrirse, para no disparar la
+        generación del prompt en cada tarjeta de la lista. Va fuera de la
+        tarjeta: el sistema Glass le da a la caja un contexto de apilamiento
+        propio, y desde dentro este modal `fixed` quedaría por debajo de las
+        tarjetas siguientes de la lista. */}
+    {isPromptModalOpen && (
+      <PromptModal
+        task={task}
+        onClose={() => setIsPromptModalOpen(false)}
+      />
+    )}
+    </>
   )
 }

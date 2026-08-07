@@ -22,6 +22,7 @@ import HabitModule from './components/habits/HabitModule'
 import ReminderModule from './components/reminders/ReminderModule'
 import CustomCursor from './components/ui/CustomCursor'
 import Button from './components/ui/Button'
+import { GlassLayers, glassSurfaceVariants } from './components/ui/GlassSurface'
 
 export default function App() {
   const { fetchTasks, subscribeToChanges: subscribeTasks, tasks } = useTaskStore()
@@ -123,9 +124,12 @@ export default function App() {
             initial={{ opacity: 0, y: 50, x: '-50%' }}
             animate={{ opacity: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, y: 50, x: '-50%' }}
-            className="fixed bottom-6 left-1/2 z-[100] glass-strong px-6 py-4 flex items-center gap-4"
-            style={{ borderRadius: 'var(--ds-radius-md)', borderColor: 'rgba(232,130,91,.35)' }}
+            className={`fixed bottom-6 left-1/2 z-[100] px-6 py-4 flex items-center gap-4 ${glassSurfaceVariants(
+              { elevation: 'raised', radius: 'md' }
+            )}`}
+            style={{ '--gs-border': 'rgba(232,130,91,.35)' }}
           >
+            <GlassLayers />
             <div>
               <p className="text-sm font-medium" style={{ color: 'var(--fg-primary)' }}>API Key necesaria</p>
               <p className="text-xs" style={{ color: 'var(--fg-secondary)' }}>Para clasificar tareas con IA, configura tu llave de Gemini.</p>

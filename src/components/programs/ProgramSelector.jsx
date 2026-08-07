@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useProgramStore } from '../../store/programStore'
 import ProgramModal from './ProgramModal'
 import Dropdown, { DropdownItem } from '../ui/Dropdown'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 export default function ProgramSelector() {
   const { programs, activeProgram, fetchPrograms, setActiveProgram } = useProgramStore()
@@ -104,15 +105,14 @@ export default function ProgramSelector() {
         {/* Quick Add */}
         <button
           onClick={() => { setEditingProgram(null); setIsModalOpen(true) }}
-          className="p-2.5 hover-surface transition-colors cursor-pointer shrink-0"
-          style={{
-            borderRadius: 'var(--ds-radius-control)',
-            background: 'var(--glass-bg)',
-            color: 'var(--fg-secondary)',
-            border: '1px solid var(--glass-border)',
-          }}
+          className={`p-2.5 cursor-pointer shrink-0 ${glassSurfaceVariants({
+            radius: 'control',
+            interactive: true,
+          })}`}
+          style={{ color: 'var(--fg-secondary)' }}
           title="Agregar Programa Académico"
         >
+          <GlassLayers />
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />

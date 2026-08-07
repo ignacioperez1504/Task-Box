@@ -5,6 +5,7 @@ import ProgramSelector from '../programs/ProgramSelector'
 import GoalList from '../goals/GoalList'
 import SubjectDistribution from '../stats/SubjectDistribution'
 import GlassCard from '../ui/GlassCard'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 import ProgressRing from '../ui/ProgressRing'
 import ThemeToggle from '../ui/ThemeToggle'
 import NotificationBell from '../notifications/NotificationBell'
@@ -80,17 +81,19 @@ function NavRow({ icon, label, active, onClick }) {
   return (
     <button
       onClick={onClick}
+      className={glassSurfaceVariants({ radius: 'md', interactive: true })}
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-        padding: '10px 14px', borderRadius: 'var(--ds-radius-md)', cursor: 'pointer',
-        background: active ? 'var(--glass-bg-strong)' : 'var(--nav-inactive-bg)',
-        border: '1px solid var(--glass-border)',
-        backdropFilter: 'blur(var(--blur-glass))', WebkitBackdropFilter: 'blur(var(--blur-glass))', transform: 'translateZ(0)',
-        boxShadow: active ? 'var(--shadow-card), var(--shadow-inset-highlight)' : 'var(--shadow-inset-highlight)',
+        padding: '10px 14px', cursor: 'pointer',
+        // El ítem inactivo es vidrio apagado y sin sombra; el activo sube a la
+        // superficie elevada del sistema.
+        '--gs-bg': active ? 'var(--glass-bg-strong)' : 'var(--nav-inactive-bg)',
+        '--gs-shadow': active ? 'var(--shadow-card)' : 'none',
         fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: active ? 600 : 500,
-        color: active ? 'var(--fg-primary)' : 'var(--fg-secondary)', transition: 'all var(--ds-duration-base) var(--ds-ease-out)',
+        color: active ? 'var(--fg-primary)' : 'var(--fg-secondary)',
       }}
     >
+      <GlassLayers />
       <span style={{ display: 'flex', color: active ? 'var(--color-terracotta)' : 'var(--fg-tertiary)' }}>{icon}</span>
       {label}
     </button>

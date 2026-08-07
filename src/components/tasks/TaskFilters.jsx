@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSubjectStore } from '../../store/subjectStore'
 import Dropdown, { DropdownItem } from '../ui/Dropdown'
 import SegmentedTabs from '../ui/SegmentedTabs'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 const PRIORITIES = [
   { label: 'Crítica', color: '#E15252' },
@@ -72,15 +73,18 @@ export default function TaskFilters({ filters, onChange }) {
             <button
               key={p.label}
               onClick={() => togglePriority(p.label)}
-              className="px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+              className={`px-3 py-1.5 text-xs font-medium cursor-pointer ${glassSurfaceVariants(
+                { radius: 'sm', interactive: true }
+              )}`}
               style={{
-                borderRadius: 'var(--ds-radius-sm)',
-                background: active ? p.color + '30' : 'var(--glass-bg)',
+                // El chip activo se tiñe con el color de su prioridad; el
+                // inactivo queda como vidrio neutro.
+                '--gs-bg': active ? p.color + '30' : 'var(--glass-bg)',
+                '--gs-border': active ? p.color + '60' : 'var(--glass-border-soft)',
                 color: active ? p.color : 'var(--fg-tertiary)',
-                border: `1px solid ${active ? p.color + '60' : 'var(--glass-border-soft)'}`,
-                transitionDuration: 'var(--ds-duration-base)',
               }}
             >
+              <GlassLayers />
               {p.label}
             </button>
           )

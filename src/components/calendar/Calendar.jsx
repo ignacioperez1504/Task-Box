@@ -8,6 +8,7 @@ import CalendarDay from './CalendarDay'
 import CalendarTask from './CalendarTask'
 import { CardSkeleton } from '../ui/LoadingSkeleton'
 import GlassCard from '../ui/GlassCard'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 const GRID_LINE = 'var(--grid-line)'
 
@@ -53,7 +54,8 @@ function AIRecommendationPanel({ tasks, reminders }) {
       animate={{ opacity: 1, y: 0 }}
       className="mb-6 relative overflow-hidden group min-h-[100px]"
     >
-      <GlassCard radius="md" padding={20} style={{ borderColor: 'rgba(232,130,91,.3)' }}>
+      {/* El borde ahora lo pinta la capa de vidrio: se retinta con --gs-border. */}
+      <GlassCard radius="md" padding={20} style={{ '--gs-border': 'rgba(232,130,91,.3)' }}>
         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-terracotta)" strokeWidth="1.5">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -205,7 +207,14 @@ export default function Calendar() {
           <div className="w-48 h-10 rounded-xl animate-shimmer" style={{ background: 'rgba(var(--ink-rgb),.08)' }} />
           <div className="w-32 h-10 rounded-xl animate-shimmer" style={{ background: 'rgba(var(--ink-rgb),.08)' }} />
         </div>
-        <div className="grid grid-cols-7 gap-px flex-1 rounded-3xl overflow-hidden" style={{ background: 'rgba(var(--ink-rgb),.08)', border: '1px solid var(--glass-border)' }}>
+        <div
+          className={`grid grid-cols-7 gap-px flex-1 ${glassSurfaceVariants({
+            radius: 'lg',
+            clip: true,
+          })}`}
+          style={{ '--gs-bg': 'rgba(var(--ink-rgb),.08)' }}
+        >
+          <GlassLayers />
           {Array.from({ length: 35 }).map((_, i) => (
             <div key={i} className="p-2" style={{ background: 'var(--glass-bg)', borderRight: `1px solid ${GRID_LINE}`, borderBottom: `1px solid ${GRID_LINE}` }}>
               <div className="w-6 h-6 rounded-full animate-shimmer mb-2" style={{ background: 'rgba(var(--ink-rgb),.1)' }} />
@@ -251,7 +260,7 @@ export default function Calendar() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <GlassCard radius="lg" padding={0} className="flex-1 flex flex-col overflow-hidden relative min-h-[560px]">
+        <GlassCard radius="lg" padding={0} clip className="flex-1 flex flex-col min-h-[560px]">
 
           {/* Days of week */}
           <div className="grid grid-cols-7 shrink-0" style={{ borderBottom: `1px solid ${GRID_LINE}`, background: 'rgba(var(--ink-rgb),0.15)' }}>

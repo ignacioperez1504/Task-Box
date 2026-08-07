@@ -1,35 +1,30 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { GlassLayers, glassSurfaceVariants } from './GlassSurface'
 
 // Desplegable único de la app. Antes convivían cuatro implementaciones: una
 // solo-hover (filtro de materias), dos sin animación ni chevron (SubjectSelect,
 // CustomDatePicker) y una completa (ProgramSelector). Este componente unifica
 // el gesto (click), la animación, el chevron y la superficie del panel.
 
+// Los tres disparadores son ahora superficies del sistema Glass: el fondo, el
+// borde y la sombra los pintan las capas, no el propio <button>. Aquí sólo
+// queda lo que es del disparador y no de la superficie (padding, tipografía).
 const TRIGGER_VARIANTS = {
   // Se lee como un input: mismo tinte hundido que <Field>.
   field: {
-    padding: '12px 16px',
-    fontSize: 14,
-    background: 'rgba(var(--ink-rgb),.06)',
-    border: '1px solid rgba(var(--ink-rgb),.15)',
-    borderRadius: 'var(--ds-radius-control)',
+    surface: { elevation: 'sunken', radius: 'control', interactive: true },
+    box: { padding: '12px 16px', fontSize: 14 },
   },
   // Se lee como una tarjeta de vidrio: selector de programa en el sidebar.
   surface: {
-    padding: '10px 16px',
-    fontSize: 14,
-    background: 'var(--glass-bg)',
-    border: '1px solid var(--glass-border)',
-    borderRadius: 'var(--ds-radius-control)',
+    surface: { elevation: 'base', radius: 'control', interactive: true },
+    box: { padding: '10px 16px', fontSize: 14 },
   },
-  // Botón chip de barra de filtros.
+  // Botón chip de barra de filtros: vidrio sin relleno, sólo canto y sombra.
   compact: {
-    padding: '6px 12px',
-    fontSize: 12,
-    background: 'transparent',
-    border: '1px solid var(--glass-border)',
-    borderRadius: 'var(--ds-radius-sm)',
+    surface: { elevation: 'sunken', radius: 'sm', interactive: true },
+    box: { padding: '6px 12px', fontSize: 12 },
   },
 }
 
@@ -60,20 +55,14 @@ export function DropdownPanel({ children, align = 'left', className = '', style 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.98 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      className={`absolute top-full mt-1.5 z-50 overflow-hidden ${
-        align === 'right' ? 'right-0' : 'left-0'
-      } ${className}`}
-      style={{
-        background: 'var(--glass-bg-strong)',
-        border: '1px solid var(--glass-border)',
-        borderRadius: 'var(--ds-radius-md)',
-        backdropFilter: 'blur(var(--blur-glass-strong))',
-        WebkitBackdropFilter: 'blur(var(--blur-glass-strong))',
-        transform: 'translateZ(0)',
-        boxShadow: 'var(--shadow-elevated)',
-        ...style,
-      }}
+      className={`absolute top-full mt-1.5 z-50 ${glassSurfaceVariants({
+        elevation: 'raised',
+        radius: 'md',
+        clip: true,
+      })} ${align === 'right' ? 'right-0' : 'left-0'} ${className}`}
+      style={style}
     >
+      <GlassLayers />
       {children}
     </motion.div>
   )
@@ -146,15 +135,18 @@ export default function Dropdown({
           type="button"
           onClick={toggle}
           disabled={disabled}
-          className="w-full flex items-center justify-between gap-3 text-left transition-colors hover-surface cursor-pointer"
+          className={`w-full flex items-center justify-between gap-3 text-left cursor-pointer ${glassSurfaceVariants(
+            TRIGGER_VARIANTS[variant].surface
+          )}`}
           style={{
-            ...TRIGGER_VARIANTS[variant],
+            ...TRIGGER_VARIANTS[variant].box,
             color: placeholder ? 'var(--fg-tertiary)' : 'var(--fg-primary)',
             fontFamily: 'var(--font-body)',
             opacity: disabled ? 0.5 : 1,
             ...triggerStyle,
           }}
         >
+          <GlassLayers />
           <span className="flex items-center gap-2 truncate min-w-0">{trigger}</span>
           <Chevron open={open} size={variant === 'compact' ? 12 : 14} />
         </button>

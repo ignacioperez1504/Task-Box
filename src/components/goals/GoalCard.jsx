@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import GradientBar from '../ui/GradientBar'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 export default function GoalCard({ goal, onEdit, onDelete }) {
   const pct = goal.target_value > 0
@@ -13,17 +14,15 @@ export default function GoalCard({ goal, onEdit, onDelete }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="p-4 transition-all duration-300"
+      className={`p-4 ${glassSurfaceVariants({ radius: 'md', interactive: true })}`}
       style={{
-        borderRadius: 'var(--ds-radius-md)',
-        background: isCompleted
-          ? 'rgba(232,130,91,0.18)'
-          : 'var(--glass-bg)',
-        border: isCompleted
-          ? '1px solid rgba(232,130,91,0.4)'
-          : '1px solid var(--glass-border-soft)',
+        // Objetivo cumplido: el vidrio se tiñe de terracota en vez de cambiar
+        // de componente.
+        '--gs-bg': isCompleted ? 'rgba(232,130,91,0.18)' : 'var(--glass-bg)',
+        '--gs-border': isCompleted ? 'rgba(232,130,91,0.4)' : 'var(--glass-border-soft)',
       }}
     >
+      <GlassLayers />
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
           {isCompleted && <span className="text-sm">🏆</span>}

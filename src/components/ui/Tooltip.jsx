@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { GlassLayers, glassSurfaceVariants } from './GlassSurface'
 
 export default function Tooltip({ children, content, className = '' }) {
   const [show, setShow] = useState(false)
@@ -33,13 +34,12 @@ export default function Tooltip({ children, content, className = '' }) {
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[100] pointer-events-none"
           >
             <div
-              className="glass-strong px-3 py-2 text-sm whitespace-nowrap max-w-[280px] text-center"
-              style={{
-                whiteSpace: 'pre-wrap',
-                borderRadius: 'var(--ds-radius-sm)',
-                color: 'var(--fg-primary)',
-              }}
+              className={`px-3 py-2 text-sm whitespace-nowrap max-w-[280px] text-center ${glassSurfaceVariants(
+                { elevation: 'raised', radius: 'sm' }
+              )}`}
+              style={{ whiteSpace: 'pre-wrap', color: 'var(--fg-primary)' }}
             >
+              <GlassLayers />
               {content}
             </div>
           </motion.div>

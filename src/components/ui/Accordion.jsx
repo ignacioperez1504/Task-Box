@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Chevron } from './Dropdown'
+import { GlassLayers, glassSurfaceVariants } from './GlassSurface'
 
 // Sección plegable del sistema. Comparte iconografía y curva de movimiento con
 // <Dropdown> (mismo chevron, misma ease), de forma que abrir un acordeón y
@@ -19,13 +20,14 @@ export default function Accordion({
 
   return (
     <div
-      className={`overflow-hidden ${className}`}
-      style={isPanel ? {
-        background: 'rgba(var(--ink-rgb),.03)',
-        border: '1px solid rgba(var(--ink-rgb),.1)',
-        borderRadius: 'var(--ds-radius-md)',
-      } : undefined}
+      className={
+        isPanel
+          ? `${glassSurfaceVariants({ elevation: 'sunken', radius: 'md', clip: true })} ${className}`
+          : `overflow-hidden ${className}`
+      }
     >
+      {isPanel && <GlassLayers />}
+
       <button
         type="button"
         onClick={() => setOpen(!open)}

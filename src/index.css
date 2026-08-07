@@ -316,6 +316,428 @@ body::after {
 }
 
 /* ============================================
+   SISTEMA GLASS — superficies de tres capas
+   ============================================
+
+   Antes cada caja era un solo <div> que pintaba fondo, borde y `box-shadow`
+   a la vez. Eso ata la sombra al mismo elemento que lleva el `backdrop-filter`,
+   y una sombra no se puede animar ni recalibrar por tema sin repintar el vidrio.
+
+   El sistema separa tres capas:
+     1. contenedor  — posiciona, define el radio y la paleta de la variante
+     2. capa de vidrio — fondo translúcido + blur + borde + highlight especular
+     3. capa de sombra — hermana, detrás, con su propio box-shadow
+
+   Toda la paleta viaja por custom properties (--gb-* para botones, --gs-* para
+   cajas) que sólo consumen tokens ya definidos arriba, de modo que el tema
+   oscuro se resuelve solo al cambiar --glass-*, --shadow-* e --ink-rgb.
+
+   NOTA sobre el reset del <button>: `all-unset` no es una utilidad de Tailwind
+   (no genera regla alguna) y `[all:unset]`, aunque sí se genera, se ordena
+   dentro de @layer utilities DESPUÉS de `relative`, `rounded-*`, `cursor-*` y
+   `transition-*`, por lo que las borraría todas. El reset va aquí abajo, en
+   una regla sin capa: las reglas fuera de @layer ganan a cualquier capa, así
+   que compone de forma predecible con las utilidades del componente.
+   -------------------------------------------------------------------------- */
+
+/* --- 1. Contenedor del botón --------------------------------------------- */
+
+/* Lo posicional va en @layer components para que las utilidades de Tailwind lo
+   puedan pisar: el FAB es `fixed` y cualquier botón puede necesitar `absolute`.
+   Sin capa, el `position: relative` de aquí les ganaría y los descolocaría. */
+@layer components {
+  .glass-button-wrap {
+    position: relative;
+    /* `z-index: 0` y NO `isolation: isolate`: ambos crean un contexto de
+       apilamiento que contiene el z-index negativo de la capa de sombra, pero
+       `isolation` además forma un backdrop root, y eso deja sin efecto el
+       `backdrop-filter` de la capa de vidrio de adentro (se queda sin fondo que
+       desenfocar). Cualquier `z-*` de Tailwind del call-site lo pisa y sigue
+       creando contexto igual. */
+    z-index: 0;
+    display: inline-flex;
+    vertical-align: middle;
+    border-radius: var(--gb-radius);
+  }
+
+  .glass-button-wrap[data-full-width='true'] {
+    display: flex;
+    width: 100%;
+  }
+}
+
+/* La paleta, en cambio, va sin capa: son custom properties que ninguna utilidad
+   declara, y así los modificadores de variante resuelven por orden de fuente. */
+.glass-button-wrap {
+  /* Paleta por defecto = variante `secondary`. Cada modificador de abajo
+     redefine sólo lo que cambia. */
+  --gb-radius: var(--ds-radius-control);
+  --gb-bg: var(--glass-bg-strong);
+  --gb-bg-hover: var(--glass-highlight);
+  --gb-border: var(--glass-border);
+  --gb-fg: var(--fg-primary);
+  --gb-blur: var(--blur-glass);
+  --gb-sheen: var(--glass-highlight);
+  --gb-shadow: var(--shadow-card);
+  --gb-shadow-hover: var(--shadow-elevated);
+}
+
+.glass-button-wrap[data-disabled='true'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* --- 2. Capa de vidrio ---------------------------------------------------- */
+.glass-button {
+  /* Reset acotado: sólo lo que el user-agent impone en <button>.
+     A propósito NO se usa el atajo `font: inherit`: fijaría también el
+     font-size y, al ser esta regla la que gana (está fuera de @layer), dejaría
+     inertes las utilidades de tamaño del cva. El tamaño lo declara el hijo
+     .glass-button-text, que gana a la herencia del <button>. */
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: none;
+
+  flex: 1;
+  border-radius: var(--gb-radius);
+  background: var(--gb-bg);
+  border: 1px solid var(--gb-border);
+  color: var(--gb-fg);
+  backdrop-filter: blur(var(--gb-blur));
+  -webkit-backdrop-filter: blur(var(--gb-blur));
+  transform: translateZ(0);
+  box-shadow: var(--shadow-inset-highlight);
+  transition:
+    background-color var(--ds-duration-base) var(--ds-ease-out),
+    border-color var(--ds-duration-base) var(--ds-ease-out),
+    transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+/* Highlight especular: la banda de luz que hace leer la superficie como vidrio
+   y no como un rectángulo translúcido. --glass-highlight ya cambia por tema
+   (.85 en claro, .3 en oscuro), así que no hace falta duplicar la regla. */
+.glass-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(158deg, var(--gb-sheen) 0%, transparent 42%);
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.glass-button-wrap:hover .glass-button {
+  transform: translateZ(0) translateY(-2px);
+}
+
+.glass-button-wrap:hover .glass-button::before {
+  opacity: 0.85;
+}
+
+.glass-button-wrap:active .glass-button {
+  transform: translateZ(0) translateY(1px);
+  transition-duration: var(--ds-duration-fast);
+}
+
+.glass-button:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 3px;
+}
+
+/* --- 3. Capa de contenido ------------------------------------------------- */
+/* El componente de referencia declaraba `block` en esta capa, pero los botones
+   de la app llevan icono + texto y dependían del `inline-flex items-center
+   gap-2` anterior. Se mantiene flex para no perder esa alineación; el tamaño
+   (padding, font-size) sí llega desde las utilidades del cva. */
+.glass-button-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  line-height: 1.2;
+  color: inherit;
+  white-space: nowrap;
+}
+
+/* Tamaños. El padding va aquí y no en utilidades `px-*`/`py-*` de Tailwind
+   porque el reset global de este archivo (`*, *::before, *::after { padding: 0 }`,
+   sin capa) le gana a @layer utilities y las deja en cero en todo el proyecto.
+   Los font-size sí se declaran como utilidad porque el reset no toca la fuente. */
+.glass-button-text--default { padding: 12px 20px; font-size: var(--text-body-md); }
+.glass-button-text--sm      { padding: 8px 16px;  font-size: var(--text-body-sm); }
+.glass-button-text--lg      { padding: 14px 28px; font-size: var(--text-body-lg); }
+.glass-button-text--icon    { padding: 0; width: 40px; height: 40px; }
+
+/* --- 4. Capa de sombra ---------------------------------------------------- */
+/* Hermana del botón, no una propiedad suya: al despegarse el vidrio en hover,
+   la sombra se hunde y se contrae en vez de acompañarlo. */
+.glass-button-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--gb-radius);
+  box-shadow: var(--gb-shadow);
+  pointer-events: none;
+  transition:
+    box-shadow var(--ds-duration-base) var(--ds-ease-out),
+    transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.glass-button-wrap:hover .glass-button-shadow {
+  box-shadow: var(--gb-shadow-hover);
+  transform: translateY(3px) scale(0.97);
+}
+
+.glass-button-wrap:active .glass-button-shadow {
+  transform: translateY(0) scale(0.99);
+  transition-duration: var(--ds-duration-fast);
+}
+
+/* --- 5. Variantes --------------------------------------------------------- */
+/* `primary` es la única con forma de píldora: la jerarquía se lee por forma
+   además de por color, y el resto sigue rimando con inputs y selects. */
+.glass-button-wrap--primary {
+  --gb-radius: 999px;
+  --gb-bg: linear-gradient(158deg, var(--color-terracotta-light) 0%, var(--color-terracotta) 55%, var(--color-terracotta-dark) 100%);
+  --gb-border: rgba(255, 255, 255, 0.3);
+  --gb-fg: var(--fg-on-accent);
+  --gb-sheen: rgba(255, 255, 255, 0.55);
+  --gb-shadow: 0 6px 18px rgba(232, 130, 91, 0.34), 0 1px 3px rgba(28, 43, 56, 0.18);
+  --gb-shadow-hover: 0 14px 32px rgba(232, 130, 91, 0.44), 0 2px 6px rgba(28, 43, 56, 0.2);
+}
+
+.glass-button-wrap--secondary {
+  /* Hereda la paleta por defecto del contenedor. */
+  --gb-bg: var(--glass-bg-strong);
+}
+
+.glass-button-wrap--ghost {
+  --gb-bg: transparent;
+  --gb-border: transparent;
+  --gb-fg: var(--fg-secondary);
+  --gb-blur: 0px;
+  --gb-sheen: transparent;
+  --gb-shadow: none;
+  --gb-shadow-hover: none;
+}
+
+.glass-button-wrap--ghost .glass-button {
+  box-shadow: none;
+}
+
+.glass-button-wrap--ghost:hover .glass-button {
+  background: var(--hover-wash);
+}
+
+/* `danger` y `success` reutilizan la escala de prioridad ya tokenizada. */
+.glass-button-wrap--danger {
+  --gb-bg: linear-gradient(158deg, #ec7373 0%, var(--color-priority-critica) 55%, #c53f3f 100%);
+  --gb-border: rgba(255, 255, 255, 0.28);
+  --gb-fg: var(--fg-on-accent);
+  --gb-sheen: rgba(255, 255, 255, 0.5);
+  --gb-shadow: 0 6px 18px rgba(225, 82, 82, 0.34), 0 1px 3px rgba(28, 43, 56, 0.18);
+  --gb-shadow-hover: 0 14px 32px rgba(225, 82, 82, 0.46), 0 2px 6px rgba(28, 43, 56, 0.2);
+}
+
+.glass-button-wrap--danger-outline {
+  --gb-bg: rgba(225, 82, 82, 0.1);
+  --gb-border: rgba(225, 82, 82, 0.4);
+  --gb-fg: var(--color-priority-critica);
+  --gb-sheen: rgba(255, 255, 255, 0.3);
+  --gb-shadow: 0 4px 14px rgba(225, 82, 82, 0.18);
+  --gb-shadow-hover: 0 10px 26px rgba(225, 82, 82, 0.28);
+}
+
+.glass-button-wrap--success {
+  --gb-bg: linear-gradient(158deg, #6ec5a5 0%, var(--color-priority-baja) 55%, #3d8b6f 100%);
+  --gb-border: rgba(255, 255, 255, 0.28);
+  --gb-fg: var(--fg-on-accent);
+  --gb-sheen: rgba(255, 255, 255, 0.5);
+  --gb-shadow: 0 6px 18px rgba(79, 174, 140, 0.32), 0 1px 3px rgba(28, 43, 56, 0.18);
+  --gb-shadow-hover: 0 14px 32px rgba(79, 174, 140, 0.42), 0 2px 6px rgba(28, 43, 56, 0.2);
+}
+
+/* Los rellenos sólidos (primary/danger/success) ya traen su propio color y no
+   deben recibir el highlight interior blanco pensado para el vidrio claro. */
+.glass-button-wrap--primary .glass-button,
+.glass-button-wrap--danger .glass-button,
+.glass-button-wrap--success .glass-button {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* En oscuro el vidrio translúcido pierde contraste contra el navy: se sube el
+   fondo y se refuerza el borde. Sólo de `secondary`, que es la única variante
+   que es vidrio real — un selector más amplio ganaría en especificidad a los
+   modificadores de arriba y borraría los rellenos sólidos. */
+:root[data-theme='dark'] .glass-button-wrap--secondary {
+  --gb-bg: rgba(255, 255, 255, 0.12);
+  --gb-border: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   SISTEMA GLASS — cajas (tarjetas, modales, paneles)
+   ============================================
+
+   Las cajas no pueden envolverse en un <div> extra sin romper el layout: hoy
+   reciben className y style con `flex-1`, `min-h-*`, `sticky`, `display:flex`…
+   Así que las tres capas se montan al revés que en el botón: el elemento sigue
+   siendo la caja (conserva todo su layout) y recibe dos hijos absolutos con
+   z-index negativo. El `z-index: 0` de la caja los mantiene dentro de ella,
+   detrás del contenido pero por delante del fondo de la app.
+
+   A diferencia del botón, este bloque SÍ va dentro de @layer components: la
+   caja necesita `position: relative` como base, pero varias superficies reales
+   son `fixed` (modal), `absolute` (panel de dropdown) o `sticky`. Sin capa,
+   `.glass-surface` ganaría a esas utilidades y las rompería; dentro de
+   `components` las utilidades mandan, que es lo correcto para el layout.
+   -------------------------------------------------------------------------- */
+
+@layer components {
+
+.glass-surface {
+  --gs-radius: var(--ds-radius-lg);
+  --gs-bg: var(--glass-bg);
+  --gs-border: var(--glass-border);
+  --gs-blur: var(--blur-glass);
+  --gs-sheen: var(--glass-highlight);
+  --gs-inset: var(--shadow-inset-highlight);
+  --gs-shadow: var(--shadow-card);
+  --gs-shadow-hover: var(--shadow-elevated);
+
+  position: relative;
+  /* Mismo motivo que en .glass-button-wrap: contexto de apilamiento sí,
+     backdrop root no, o el blur de la capa de vidrio se queda sin fondo. */
+  z-index: 0;
+  border-radius: var(--gs-radius);
+}
+
+/* Capa de vidrio. */
+.glass-surface > .glass-surface-glass {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--gs-bg);
+  border: 1px solid var(--gs-border);
+  backdrop-filter: blur(var(--gs-blur));
+  -webkit-backdrop-filter: blur(var(--gs-blur));
+  transform: translateZ(0);
+  box-shadow: var(--gs-inset);
+  pointer-events: none;
+  transition: background-color var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.glass-surface > .glass-surface-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(158deg, var(--gs-sheen) 0%, transparent 38%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Capa de sombra, separada del vidrio igual que en el botón. */
+.glass-surface > .glass-surface-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  box-shadow: var(--gs-shadow);
+  pointer-events: none;
+  transition:
+    box-shadow var(--ds-duration-base) var(--ds-ease-out),
+    transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+/* Elevaciones. `raised` = modales, dropdowns, paneles flotantes. */
+.glass-surface--raised {
+  --gs-bg: var(--glass-bg-strong);
+  --gs-blur: var(--blur-glass-strong);
+  --gs-shadow: var(--shadow-elevated);
+}
+
+/* `sunken` = filas, chips y cajas informativas dentro de otra superficie: el
+   mismo tinte hundido de <Field>, ya sin vidrio propio. */
+.glass-surface--sunken {
+  --gs-bg: rgba(var(--ink-rgb), 0.05);
+  --gs-border: rgba(var(--ink-rgb), 0.1);
+  --gs-blur: 0px;
+  --gs-sheen: transparent;
+  --gs-inset: none;
+  --gs-shadow: none;
+  --gs-shadow-hover: none;
+}
+
+/* Vidrio oscuro sobre fondo claro (la antigua variante `dark` de GlassCard). */
+.glass-surface--dark {
+  --gs-bg: var(--glass-bg-dark);
+  --gs-border: var(--glass-border-soft);
+  --gs-sheen: transparent;
+  --gs-inset: none;
+}
+
+/* Superficies que recortan su contenido (paneles de dropdown, acordeones, la
+   rejilla del calendario). `overflow: hidden` recorta a los descendientes, y la
+   capa de sombra es uno: su box-shadow, que se dibuja fuera de su propia caja,
+   desaparecería por completo. En estos casos la sombra vuelve al elemento —
+   overflow NO recorta la sombra del propio elemento — y se pierde sólo la
+   coreografía de hover, que es justo la que estas superficies no usan. */
+.glass-surface--clip {
+  overflow: hidden;
+  box-shadow: var(--gs-shadow);
+}
+
+.glass-surface--clip > .glass-surface-shadow {
+  box-shadow: none;
+}
+
+/* Radios: mismos tokens de siempre, expuestos como modificador. */
+.glass-surface--radius-lg { --gs-radius: var(--ds-radius-lg); }
+.glass-surface--radius-md { --gs-radius: var(--ds-radius-md); }
+.glass-surface--radius-sm { --gs-radius: var(--ds-radius-sm); }
+.glass-surface--radius-control { --gs-radius: var(--ds-radius-control); }
+.glass-surface--radius-full { --gs-radius: 999px; }
+
+/* Superficie interactiva: se despega y su sombra se hunde, igual que el botón.
+   El wash de hover va en la capa de vidrio y no en el elemento, porque los
+   hijos con z-index negativo se pintan por encima del fondo del propio
+   elemento: un `hover-surface` en la caja quedaría tapado por el vidrio. */
+.glass-surface--interactive {
+  transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.glass-surface--interactive > .glass-surface-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--hover-wash);
+  opacity: 0;
+  transition: opacity var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.glass-surface--interactive:hover > .glass-surface-glass::after {
+  opacity: 1;
+}
+
+.glass-surface--interactive:hover > .glass-surface-shadow {
+  box-shadow: var(--gs-shadow-hover);
+  transform: translateY(4px) scale(0.985);
+}
+
+} /* @layer components */
+
+/* ============================================
    KEYFRAMES
    ============================================ */
 

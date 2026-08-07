@@ -5,6 +5,7 @@ import TaskCard from '../tasks/TaskCard'
 import EmptyState from '../ui/EmptyState'
 import PageHeader from '../ui/PageHeader'
 import Button from '../ui/Button'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 export default function DayTasksView() {
   const { selectedDate, setActiveSection, openCreatePanel } = useUIStore()
@@ -35,9 +36,11 @@ export default function DayTasksView() {
       <div className="flex items-start gap-4 mb-8">
         <button
           onClick={() => setActiveSection('calendar')}
-          className="glass w-10 h-10 flex items-center justify-center hover-surface transition-colors shrink-0 cursor-pointer mt-1"
-          style={{ borderRadius: 'var(--ds-radius-control)' }}
+          className={`w-10 h-10 flex items-center justify-center shrink-0 cursor-pointer mt-1 ${glassSurfaceVariants(
+            { radius: 'control', interactive: true }
+          )}`}
         >
+          <GlassLayers />
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--fg-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />

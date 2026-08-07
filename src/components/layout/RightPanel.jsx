@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUIStore } from '../../store/uiStore'
 import TaskForm from '../tasks/TaskForm'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 export default function RightPanel() {
   const { rightPanelOpen, editingTask, closeRightPanel } = useUIStore()
@@ -26,15 +27,14 @@ export default function RightPanel() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 w-[35%] min-w-[420px] z-50 overflow-y-auto custom-scrollbar"
-            style={{
-              background: 'var(--glass-bg-strong)',
-              backdropFilter: 'blur(var(--blur-glass-strong))',
-              WebkitBackdropFilter: 'blur(var(--blur-glass-strong))',
-              borderLeft: '1px solid var(--glass-border)',
-              boxShadow: 'var(--shadow-elevated)',
-            }}
+            className={`fixed right-0 top-0 bottom-0 w-[35%] min-w-[420px] z-50 overflow-y-auto custom-scrollbar ${glassSurfaceVariants(
+              { elevation: 'raised', radius: 'lg' }
+            )}`}
+            // El panel se ancla al borde derecho: sólo redondea el lado que
+            // queda a la vista.
+            style={{ borderRadius: 'var(--ds-radius-lg) 0 0 var(--ds-radius-lg)' }}
           >
+            <GlassLayers />
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid var(--divider-soft)' }}>
               <h2 className="font-display text-2xl" style={{ color: 'var(--fg-primary)' }}>

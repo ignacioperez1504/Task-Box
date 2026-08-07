@@ -4,6 +4,7 @@ import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import Badge from '../ui/Badge'
 import EmptyState from '../ui/EmptyState'
+import { GlassLayers, glassSurfaceVariants } from '../ui/GlassSurface'
 
 const INBOX_ICON = (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -37,13 +38,12 @@ function formatReceived(iso) {
 function NotificationRow({ notification, onReject, onConfirm }) {
   return (
     <li
-      className="px-4 py-4"
-      style={{
-        background: 'rgba(var(--ink-rgb),.05)',
-        border: '1px solid rgba(var(--ink-rgb),.1)',
-        borderRadius: 'var(--ds-radius-control)',
-      }}
+      className={`px-4 py-4 ${glassSurfaceVariants({
+        elevation: 'sunken',
+        radius: 'control',
+      })}`}
     >
+      <GlassLayers />
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0">
           <p
