@@ -4,7 +4,7 @@ import { useContextStore } from '../store/contextStore'
 const DEFAULT_ENDPOINT = 'https://api.groq.com/openai/v1'
 
 // ↓ CAMBIO 2: modelo de Groq
-const DEFAULT_MODEL = 'llama-3.1-8b-instant'
+const DEFAULT_MODEL = 'openai/gpt-oss-20b'
 
 // Cache simple en memoria
 const classificationCache = new Map()
@@ -152,7 +152,8 @@ export async function classifyTask(task) {
       },
     ],
     temperature: 0.3,
-    max_tokens: 200,
+    max_completion_tokens: 700,
+    reasoning_effort: 'low',
   }
 
   console.log('📤 URL:', url)
@@ -292,7 +293,8 @@ export async function getDailyRecommendation(tasks, reminders) {
         model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.5,
-        max_tokens: 150,
+        max_completion_tokens: 600,
+        reasoning_effort: 'low',
       }),
     })
 
@@ -358,7 +360,8 @@ El prompt que generes debe estar redactado en primera persona o como una instruc
       },
     ],
     temperature: 0.7,
-    max_tokens: 400,
+    max_completion_tokens: 1200,
+    reasoning_effort: 'low',
   }
 
   try {

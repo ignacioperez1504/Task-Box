@@ -47,7 +47,7 @@ Reglas:
 export async function classifyEmailAsTask(
   email: EmailInput,
   apiKey: string,
-  model = 'llama-3.1-8b-instant'
+  model = 'openai/gpt-oss-20b'
 ): Promise<TaskExtraction> {
   const response = await fetch(GROQ_URL, {
     method: 'POST',
@@ -59,7 +59,8 @@ export async function classifyEmailAsTask(
       model,
       messages: [{ role: 'user', content: buildPrompt(email) }],
       temperature: 0.2,
-      max_tokens: 300,
+      max_completion_tokens: 700,
+      reasoning_effort: 'low',
     }),
   })
 

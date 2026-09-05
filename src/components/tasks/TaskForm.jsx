@@ -226,7 +226,7 @@ export default function TaskForm({ task = null }) {
           placeholder="Describe la tarea con el mayor detalle posible. Esto ayuda a la IA a clasificarla mejor."
           rows={3}
           className="w-full text-sm px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors resize-none"
-          style={{ minHeight: '80px', background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
+          style={{ minHeight: '80px', background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)', fontFamily: 'var(--font-body)' }}
           onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
         />
       </div>
@@ -250,7 +250,7 @@ export default function TaskForm({ task = null }) {
             onChange={(e) => setPercentage(parseFloat(e.target.value) || 0)}
             placeholder="0"
             className="w-24 text-sm px-4 py-3 rounded-xl outline-none focus:border-terracotta transition-colors"
-            style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)' }}
+            style={{ background: 'rgba(var(--ink-rgb),.05)', color: 'var(--fg-primary)', border: '1px solid rgba(var(--ink-rgb),.15)', fontFamily: 'var(--font-body)' }}
           />
           <span className="text-xs" style={{ color: 'var(--fg-secondary)' }}>del total de la materia</span>
         </div>

@@ -30,3 +30,6 @@ dist-ssr
 
 # Supabase CLI local scratch
 supabase/.temp/
+
+# Config local de Claude Code (por máquina, no se versiona)
+.claude/settings.local.json

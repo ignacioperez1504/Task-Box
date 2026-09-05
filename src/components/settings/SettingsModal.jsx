@@ -34,7 +34,7 @@ export default function SettingsModal() {
     localStorage.getItem('sf_api_endpoint') || 'https://api.groq.com/openai/v1'
   )
   const [model, setModel] = useState(
-    localStorage.getItem('sf_api_model') || 'llama-3.1-8b-instant'
+    localStorage.getItem('sf_api_model') || 'openai/gpt-oss-20b'
   )
   const [saved, setSaved] = useState(false)
 

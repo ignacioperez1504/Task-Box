@@ -52,6 +52,15 @@ export const useSubjectStore = create((set, get) => ({
     return null
   },
 
+  // La FK subject_id de tasks es ON DELETE SET NULL: las tareas asociadas
+  // sobreviven al borrado, solo quedan sin materia asignada.
+  deleteSubject: async (id) => {
+    const { error } = await supabase.from('subjects').delete().eq('id', id)
+    if (error) return false
+    set({ subjects: get().subjects.filter((s) => s.id !== id) })
+    return true
+  },
+
   getSubjectById: (id) => {
     return get().subjects.find((s) => s.id === id) || null
   },

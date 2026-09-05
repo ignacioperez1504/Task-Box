@@ -56,7 +56,7 @@ export default function TagInput({ tags = [], onChange }) {
           onKeyDown={handleKeyDown}
           placeholder="Escribe y presiona Enter"
           className="w-full bg-transparent border-b py-2 text-sm outline-none focus:border-terracotta transition-colors"
-          style={{ borderColor: 'rgba(var(--ink-rgb),.2)', color: 'var(--fg-primary)' }}
+          style={{ borderColor: 'rgba(var(--ink-rgb),.2)', color: 'var(--fg-primary)', fontFamily: 'var(--font-body)' }}
         />
       )}
     </div>
